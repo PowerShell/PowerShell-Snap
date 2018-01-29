@@ -1,0 +1,20 @@
+#!/bin/bash
+
+needs_update=true
+. $SNAP_USER_DATA/.last_revision 2>/dev/null || true
+
+if [ "$SNAP_DESKTOP_LAST_REVISION" = "$SNAP_REVISION" ]; then
+    needs_update=false
+fi
+
+if [ $(snapctl get 'telemtry-optout') == 'yes' ]; then
+    export POWERSHELL_TELEMETRY_OPTOUT=1
+fi
+
+[ $needs_update = true ] && echo "SNAP_DESKTOP_LAST_REVISION=$SNAP_REVISION" > $SNAP_USER_DATA/.last_revision
+
+export PSHOME="$(ls -d "$SNAP/opt/powershell/"*)"
+# export PSHOME="$SNAP/opt/microsoft/powershell/6.0.0-rc2"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PSHOME"
+
+exec "$SNAP/opt/powershell/pwsh" "$@"

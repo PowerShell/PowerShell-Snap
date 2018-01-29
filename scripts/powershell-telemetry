@@ -1,0 +1,40 @@
+#!/bin/bash
+
+OPTOUT_FILE="$SNAP_USER_DATA/.telemetry-optout"
+
+echo "Powershell has been updated. Please verify your telemetry choices."
+echo
+cat <<EOF
+Powershell Telemetry
+--------------
+By default, PowerShell collects the OS description and the version of PowerShell
+(equivalent to $PSVersionTable.OS and $PSVersionTable.GitCommitId) using
+Application Insights https://azure.microsoft.com/en-us/services/application-insights/
+
+To opt-out of sending telemetry, say no at the prompt. The telemetry we collect
+fall under the Microsoft Privacy Statement https://privacy.microsoft.com/en-us/privacystatement/
+EOF
+echo -n "Enable Telemetry? ([Y]/n): "
+read RESPONSE
+
+case "$RESPONSE" in
+[Nn]*)
+    echo "Telemetry gathering is now disabled."
+    snapctl set telemetry-optout=yes
+    ;;
+[Yy]*)
+    echo "Telemetry gathering is now enabled."
+    snapctl set telemetry-optout=no
+    ;;
+*)
+    echo "The default is enabled, therefore telemetry gathering is now enabled."
+    snapctl set telemetry-optout=no
+    ;;
+esac
+
+echo
+cat <<EOF
+To change your choice, re-run 'powershell.telemetry'. You will also be asked
+again when powershell is updated.
+EOF
+echo
