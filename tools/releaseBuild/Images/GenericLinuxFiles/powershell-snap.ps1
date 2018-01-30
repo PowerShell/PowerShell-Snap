@@ -13,6 +13,7 @@ param (
     [string]$ReleaseTag
 )
 
+$ErrorActionPreference = 'Stop'
 $releaseTagParam = @{}
 if ($ReleaseTag)
 {
@@ -22,12 +23,16 @@ if ($ReleaseTag)
 Push-Location
 try {
     Set-Location $location
-    $version = $ReleaseTag -Replace '^v'
-    $version | out-file -filePath './version.txt' -encoding ascii
-    Write-Verbose "verify version..." -Verbose
-    cat ./version.txt
+    if($ReleaseTag)
+    {
+        $version = $ReleaseTag -Replace '^v'
+        $version | out-file -filePath './version.txt' -encoding ascii
+        Write-Verbose "verify version..." -Verbose
+        cat ./version.txt
+    }
     Write-Verbose "building prime..." -Verbose
     snapcraft prime
+    # workaround for https://bugs.launchpad.net/snapcraft/+bug/1746329
     patchelf --force-rpath --set-rpath '/snap/core/current/usr/lib/x86_64-linux-gnu:/snap/core/current/lib/x86_64-linux-gnu:/snap/powershell/current/usr/lib/x86_64-linux-gnu' ./prime/opt/powershell/pwsh
     Write-Verbose "verify rpath..." -Verbose
     patchelf --print-rpath ./prime/opt/powershell/pwsh
