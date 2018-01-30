@@ -1,11 +1,20 @@
 name: powershell
-version: 'git'
-summary: Single-line elevator pitch for your amazing snap
+version: 6.0.1
+version-script: |
+  file="./version.txt"
+  if [ -f "$file" ]
+  then
+    cat ./version.txt
+  else
+    version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .ReleaseTag | sed 's/"//g' | sed 's/v//')
+    $version > ./version.txt
+    echo $version
+  fi
+summary: PowerShell for every system
 description: |
-  This is my-snap's description. You have a paragraph or two to tell the
-  most important story about your snap. Keep it under 100 words though,
-  we live in tweetspace and your description wants to look good in the snap
-  store.
+  PowerShell is an automation and configuration management platform.
+  It consists of a cross-platform (Windows, Linux and macOS)
+  command-line shell and associated scripting language.
 
 confinement: classic # use 'strict' once you have the right plugs and slots
 
@@ -38,7 +47,9 @@ parts:
     after: [scripts, patches]
     plugin: nil
     prepare: |
-      curl -L -o powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v6.0.1/powershell-6.0.1-linux-x64.tar.gz
+      version=$(cat ./version.txt)
+      echo getting powershell $version
+      curl -L -o powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v$version/powershell-$version-linux-x64.tar.gz
     # patch -Np1 < "$SNAPCRAFT_STAGE/telemetry.diff"
     install: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
@@ -52,3 +63,5 @@ parts:
       - libunwind8
       - libuuid1
       - zlib1g
+    build-packages:
+      - curl

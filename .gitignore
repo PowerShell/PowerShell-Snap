@@ -2,3 +2,7 @@
 parts
 stage
 prime
+
+# mac finder
+
+**.DS_Store
