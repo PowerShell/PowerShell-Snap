@@ -1,7 +1,7 @@
 <h1 align="center">
   <img src="https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png" alt="Project">
   <br />
-  [Project]
+  PowerShell
 </h1>
 
 <p align="center"><b>This is the snap for PowerShell</b>, <i>"PowerShell for every system"</i>. It works on Ubuntu, Fedora, Debian, and other major Linux
@@ -15,7 +15,7 @@ distributions.</p>
 
 ## Install
 
-    sudo snap install powershell or pwsh (we need to decide)
+    sudo snap install powershell
 
 ([Don't have snapd installed?](https://snapcraft.io/docs/core/install))
 
@@ -37,12 +37,12 @@ upstream so [Project] can authoritatively publish future releases.
   - [x] Rename the forked Snapcrafters template repository
   - [x] Update logos and references to `[Project]` and `[my-snap-name]`
   - [x] Create a snap that runs in `classic`
-  - [ ] Register the snap in the store, **using the preferred upstream name**
+  - [x] Register the snap in the store, **using the preferred upstream name**
   - [ ] Add a screenshot to this `README.md`
   - [ ] Publish the `classic` snap in the Snap store edge channel
   - [ ] Add install instructions to this `README.md`
   - [ ] Update snap store metadata, icons and screenshots
-  - [ ] Convert the snap to `classic` confinement.
+  - [x] Convert the snap to `classic` confinement.
   - [ ] Publish the confined snap in the Snap store beta channel
   - [ ] Update the install instructions in this `README.md`
   - [ ] Post a call for testing on the [Snapcraft Forum](https://forum.snapcraft.io) - [link]()
