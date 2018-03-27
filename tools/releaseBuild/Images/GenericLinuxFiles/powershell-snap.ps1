@@ -22,6 +22,7 @@ if ($ReleaseTag)
 
 Push-Location
 try {
+    Write-Verbose "snapcraft version $(snapcraft --version)" -Verbose    
     Set-Location $location
     if($ReleaseTag)
     {
@@ -30,14 +31,8 @@ try {
         Write-Verbose "verify version..." -Verbose
         cat ./version.txt
     }
-    Write-Verbose "building prime..." -Verbose
-    snapcraft prime
-    # workaround for https://bugs.launchpad.net/snapcraft/+bug/1746329
-    patchelf --force-rpath --set-rpath '/snap/core/current/usr/lib/x86_64-linux-gnu:/snap/core/current/lib/x86_64-linux-gnu:/snap/powershell/current/usr/lib/x86_64-linux-gnu' ./prime/opt/powershell/pwsh
-    Write-Verbose "verify rpath..." -Verbose
-    patchelf --print-rpath ./prime/opt/powershell/pwsh
-    Write-Verbose "packing..." -Verbose
-    snapcraft pack prime
+    Write-Verbose "building snap..." -Verbose
+    snapcraft snap
 }
 finally
 {
