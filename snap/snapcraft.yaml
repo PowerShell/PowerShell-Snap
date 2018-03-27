@@ -65,3 +65,4 @@ parts:
       - zlib1g
     build-packages:
       - curl
+      - jq
