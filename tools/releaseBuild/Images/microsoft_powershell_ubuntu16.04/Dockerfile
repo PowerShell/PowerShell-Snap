@@ -1,5 +1,5 @@
 # Docker image file that describes an Ubuntu16.04 image with PowerShell and SnapCraft installed from Microsoft APT Repo
-FROM snapcore/snapcraft:beta
+FROM snapcore/snapcraft:stable
 
 # Install apt-utils (for apt-key used later)
 # Install ca-certificates so we can use ssl
