@@ -69,7 +69,7 @@ parts:
         libname=$(dirname $filename | sed 's,^\(.*/\)\?\([^/]*\),\2,')
         echo ''
         echo '---------------------------------------------'
-        echo 'Package - $libname'
+        echo "Package - $libname"
         echo '---------------------------------------------'
         cat "$filename"
       done >> $thirdPartNoticeFile
