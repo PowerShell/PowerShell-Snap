@@ -58,13 +58,15 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
       tar zxf powershell.tar.gz -C $SNAPCRAFT_PART_INSTALL/opt/powershell
       chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
-      echo "building third party notices file - $thirdPartNoticeFile"
-      thirdPartNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
-      echo 'THIRD-PARTY SOFTWARE NOTICES AND INFORMATION' > $thirdPartNoticeFile
-      echo 'The software is based on or incorporates material from the projects listed below (collectively, "Third Party Code").' >> $thirdPartNoticeFile
-      echo 'Microsoft is not the original author of the Third Party Code.' >> $thirdPartNoticeFile
-      echo 'The original copyright notice and license, under which Microsoft received such Third Party Code, are set forth below.' >> $thirdPartNoticeFile
-      echo 'Microsoft reserves all rights not expressly granted herein, whether by implication, estoppel or otherwise.' >> $thirdPartNoticeFile
+      thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
+      echo "building third party notices file - $thirdPartyNoticeFile"
+      cat > $thirdPartyNoticeFile <<EOF
+      THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+      This software is based on or incorporates material from the projects listed below (collectively, "Third Party Code").
+      Microsoft is not the original author of the Third Party Code.
+      The original copyright notice and license, under which Microsoft received such Third Party Code, are set forth below.
+      Microsoft reserves all rights not expressly granted herein, whether by implication, estoppel or otherwise.
+      EOF
       find $SNAPCRAFT_PART_INSTALL -type f -name 'copyright' -print | while read filename; do 
         libname=$(dirname $filename | sed 's,^\(.*/\)\?\([^/]*\),\2,')
         echo ''
@@ -72,8 +74,8 @@ parts:
         echo "Package - $libname"
         echo '---------------------------------------------'
         cat "$filename"
-      done >> $thirdPartNoticeFile
-      echo "Done building third party notices file - $thirdPartNoticeFile"
+      done >> $thirdPartyNoticeFile
+      echo "Done building third party notices file - $thirdPartyNoticeFile"
     stage-packages:
       - libcurl3
       - libicu55
