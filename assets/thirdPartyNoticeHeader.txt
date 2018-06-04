@@ -12,7 +12,7 @@ any available source code by sending a check or money order for US $5.00 to:
     One Microsoft Way
     Redmond, WA 98052 USA
 
-Please write “source for the PowerShell Core Snap ver. ” in the memo line of your payment.
+Please write “source for the PowerShell Core Snap” with the version of the Snap package in the memo line of your payment.
 Notwithstanding any other terms under which this product was provided to you, you may reverse engineer
 this product to the extent required to debug changes to any libraries licensed under the GNU
 Lesser General Public License for your own use.
