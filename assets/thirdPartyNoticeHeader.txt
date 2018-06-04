@@ -1,0 +1,19 @@
+----------------------------------------------------------------------------------
+THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+Do Not Translate or Localize
+
+This container incorporates material, listed below, from third parties. Microsoft reserves all rights not
+expressly granted, whether by implication, estoppel or otherwise.  Any source code that Microsoft
+makes available can be found at http://3rdpartysource.microsoft.com. You may also obtain a copy of
+any available source code by sending a check or money order for US $5.00 to:
+
+    Source Code Compliance Team
+    Microsoft Corporation
+    One Microsoft Way
+    Redmond, WA 98052 USA
+
+Please write “source for the PowerShell Core Snap ver. ” in the memo line of your payment.
+Notwithstanding any other terms under which this product was provided to you, you may reverse engineer
+this product to the extent required to debug changes to any libraries licensed under the GNU
+Lesser General Public License for your own use.
+----------------------------------------------------------------------------------
