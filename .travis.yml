@@ -1,8 +1,12 @@
 sudo: required
 services: [docker]
 
+install:
+  - docker pull snapcore/snapcraft:stable
+  - sudo apt -q update
+  - sudo apt -q install --yes snapd
+
 script:
   - docker run -v $(pwd):$(pwd) -w $(pwd) snapcore/snapcraft:stable sh -c "apt update && snapcraft --version && snapcraft"
-  - sudo apt -q install --yes snapd
   - sudo snap install *.snap --dangerous --classic
   - /snap/bin/powershell -v

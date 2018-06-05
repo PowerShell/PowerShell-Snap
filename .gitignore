@@ -6,3 +6,6 @@ prime
 # mac finder
 
 **.DS_Store
+
+# snap packages
+*.snap
