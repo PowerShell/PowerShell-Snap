@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: snapcore/snapcraft:stable
+    steps:
+      - checkout
+      - run:
+          name: Update apt
+          command: apt update
+      - run:
+          name: build
+          command: snapcraft snap
+      - run:
+          name: Move artifacts to folder
+          command: |
+            mkdir /tmp/artifacts
+            cp *.snap /tmp/artifacts/
+      - store_artifacts:
+                path: /tmp/artifacts
