@@ -1,0 +1,70 @@
+name: powershell-preview
+
+# the version number is not used, but required
+version: 6.0.1
+version-script: |
+  file="./version.txt"
+  if [ -f "$file" ]
+  then
+    cat $file
+  else
+    version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .ReleaseTag | sed 's/"//g' | sed 's/v//')
+    echo $version
+  fi
+summary: PowerShell for every system
+description: |
+  PowerShell is an automation and configuration management platform.
+  It consists of a cross-platform (Windows, Linux and macOS)
+  command-line shell and associated scripting language.
+
+confinement: classic
+
+apps:
+  powershell:
+    command: opt/powershell/pwsh
+
+parts:
+  powershell:
+    plugin: nil
+    prepare: |
+      file="./version.txt"
+      if [ -f "$file" ]
+      then
+        echo "using version file"
+        version=$(cat $file)
+      else
+        echo "getting latest version from GitHub"
+        version=`curl https://api.github.com/repos/powershell/powershell/releases/latest | sed '/tag_name/!d' | sed s/\"tag_name\"://g | sed s/\"//g | sed s/v// | sed s/,//g | sed s/\ //g`
+        echo "Writing version to file"
+        echo $version > $file
+      fi
+      echo "getting powershell $version"
+      curl -L -o powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v$version/powershell-$version-linux-x64.tar.gz
+      curl -L -o thirdPartyNoticeHeader.txt https://raw.githubusercontent.com/PowerShell/PowerShell-Snap/master/assets/thirdPartyNoticeHeader.txt
+    install: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
+      tar zxf powershell.tar.gz -C $SNAPCRAFT_PART_INSTALL/opt/powershell
+      chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
+      echo "building third party notices file - $thirdPartyNoticeFile"
+      cat thirdPartyNoticeHeader.txt > $thirdPartyNoticeFile
+      find $SNAPCRAFT_PART_INSTALL -type f -name 'copyright' -print | while read filename; do 
+        libname=$(dirname $filename | sed 's,^\(.*/\)\?\([^/]*\),\2,')
+        echo ''
+        echo '---------------------------------------------'
+        echo "Package - $libname"
+        echo '---------------------------------------------'
+        cat "$filename"
+      done >> $thirdPartyNoticeFile
+      echo "Done building third party notices file - $thirdPartyNoticeFile"
+    stage-packages:
+      - libcurl3
+      - libicu55
+      - liblttng-ust0
+      - libssl1.0.0
+      - libunwind8
+      - libuuid1
+      - zlib1g
+    build-packages:
+      - curl
+      - jq
