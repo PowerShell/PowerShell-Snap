@@ -43,7 +43,7 @@ parts:
         version=$(cat $file)
       else
         echo "getting latest version from GitHub"
-        version=$(curl https://api.github.com/repos/PowerShell/PowerShell/releases | grep -Po '"tag_name":(\d*?,|.*?[^\\]",)' | grep -Po '\d+.\d+.\d+[\da-z.-]*' | grep -v '[a-z]' | sort | tail -n1)
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .ReleaseTag | sed 's/"//g' | sed 's/v//')
         echo "Writing version to file"
         echo $version > $file
       fi
