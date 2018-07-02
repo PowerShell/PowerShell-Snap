@@ -10,8 +10,16 @@ param (
 
     [ValidatePattern("^v\d+\.\d+\.\d+(-\w+(\.\d+)?)?$")]
     [ValidateNotNullOrEmpty()]
-    [string]$ReleaseTag
+    [string]$ReleaseTag,
+
+    [switch]$Preview
 )
+
+$directory = 'stable'
+if($Preview.IsPresent)
+{
+    $directory='preview'
+}
 
 $ErrorActionPreference = 'Stop'
 $releaseTagParam = @{}
@@ -23,7 +31,8 @@ if ($ReleaseTag)
 Push-Location
 try {
     Write-Verbose "snapcraft version $(snapcraft --version)" -Verbose    
-    Set-Location $location
+    Set-Location (Join-Path -Path $location -ChildPath $directory)
+    Write-Verbose -message "building $pwd" -Verbose
     if($ReleaseTag)
     {
         $version = $ReleaseTag -Replace '^v'
@@ -39,7 +48,7 @@ finally
     Pop-Location
 }
 
-$linuxPackages = Get-ChildItem "$location/powershell*" -Include *.snap
+$linuxPackages = Get-ChildItem "$location/powershell*.snap" -Recurse
 foreach ($linuxPackage in $linuxPackages)
 {
     $filePath = $linuxPackage.FullName

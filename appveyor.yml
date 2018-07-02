@@ -1,0 +1,25 @@
+version: 1.0.{build}
+environment:
+  matrix:
+  - APPVEYOR_BUILD_WORKER_IMAGE: ubuntu
+    Purpose: preview
+  - APPVEYOR_BUILD_WORKER_IMAGE: ubuntu
+    Purpose: stable
+
+install:
+  - ps: $env:BUILD_STAGINGDIRECTORY=$PWD
+
+build_script:
+  - ps: if ($env:Purpose -eq 'preview') {./tools/releaseBuild/vstsbuild.ps1 -Name powershell-snap-preview-latest}
+  - ps: if ($env:Purpose -eq 'stable') {./tools/releaseBuild/vstsbuild.ps1 -Name powershell-snap-latest}
+  - ps: |
+      $snap = Get-ChildItem /tmp/*.snap -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
+      Write-Host "snap- $snap"
+      Push-AppveyorArtifact $snap
+      sudo snap install $snap --dangerous --classic
+  - ps: if ($env:Purpose -eq 'preview') {/snap/bin/powershell-preview -c '$PSVersionTable.PSVersion.ToString() '}
+  - ps: if ($env:Purpose -eq 'stable') {/snap/bin/powershell -c '$PSVersionTable.PSVersion.ToString() '}
+
+skip_commits:
+  files:
+    - '**/*.md'
