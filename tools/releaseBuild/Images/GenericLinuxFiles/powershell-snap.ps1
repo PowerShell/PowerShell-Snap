@@ -31,8 +31,7 @@ if ($ReleaseTag)
 Push-Location
 try {
     Write-Verbose "snapcraft version $(snapcraft --version)" -Verbose    
-    Set-Location $location
-    Set-location $directory
+    Set-Location (Join-Path -Path $location -ChildPath $directory)
     Write-Verbose -message "building $pwd" -Verbose
     if($ReleaseTag)
     {
