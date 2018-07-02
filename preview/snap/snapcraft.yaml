@@ -11,7 +11,7 @@ version-script: |
     version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .NextReleaseTag | sed 's/"//g' | sed 's/v//')
     echo $version
   fi
-summary: PowerShell for every system
+summary: PowerShell for every system!
 description: |
   PowerShell is an automation and configuration management platform.
   It consists of a cross-platform (Windows, Linux and macOS)
