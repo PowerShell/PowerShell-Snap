@@ -7,7 +7,6 @@ environment:
     Purpose: stable
 
 install:
-#  - ps: Install-module pester -Scope CurrentUser -Force -SkipPublisherCheck
   - ps: $env:BUILD_STAGINGDIRECTORY=$PWD
 
 build_script:
