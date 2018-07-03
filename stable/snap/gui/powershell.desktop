@@ -5,3 +5,4 @@ Exec=powershell
 Type=Application
 Terminal=true
 Categories=ConsoleOnly;System
+Icon=icon.png
