@@ -23,19 +23,21 @@ confinement: classic
 
 apps:
   powershell:
-    command: opt/powershell/pwsh
+    command: bin/powershell-wrapper
 
 parts:
-  scripts:
-    plugin: dump
-    source: scripts
-    prepare: |
-      chmod +x powershell-launch powershell-telemetry
-    organize:
-      '*': bin/
-
+    # A wrapper script
+  launchers:
+      plugin: dump
+      source: .
+      organize:
+          launcher/powershell-wrapper: bin/powershell-wrapper
+      filesets:
+          wrapper: [bin/powershell-wrapper]
+      stage: [$wrapper]
+      snap: [$wrapper]
   powershell:
-    after: [scripts]
+    after: [launchers]
     plugin: nil
     override-build: |
       file="./version.txt"
