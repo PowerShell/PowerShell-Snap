@@ -1,0 +1,8 @@
+
+[Desktop Entry]
+Name=PowerShell
+Exec=powershell
+Type=Application
+Terminal=true
+Categories=ConsoleOnly;System
+Icon=${SNAP}/meta/gui/icon.png
