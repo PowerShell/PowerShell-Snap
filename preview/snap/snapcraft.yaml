@@ -27,6 +27,7 @@ apps:
 
 parts:
   powershell-preview:
+    after: [launchers]
     plugin: nil
     override-build: |
       file="./version.txt"
