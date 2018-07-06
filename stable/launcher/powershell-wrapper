@@ -43,7 +43,7 @@ TestDistro(){
     DIST=`lowercase $DIST`
 
     # Tests for unsupported distrobutions go here
-    if [ "${DIST}" == "fedora" ] && [ "${REV}" == "28" ] ; then
+    if [ "${DIST}" = "fedora" -a "${REV}" = "28" ] ; then
         ReportUnsupported -D $DIST -R $REV
         # Workaround for https://github.com/powershell/powershell/issues/6132
         export TERM=xterm
