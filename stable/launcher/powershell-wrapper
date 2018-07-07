@@ -53,13 +53,16 @@ TestDistro(){
     if [ "${DIST}" = "fedora" -a "${REV}" = "28" ] ; then
         ReportUnsupported -D $DIST -R $REV
         echoerr "Use 'powershell-preview' package for support."
-        # Workaround for https://github.com/powershell/powershell/issues/6132
-        export TERM=xterm
+        WorkaroundTerminalIssue
     elif [ "${DIST}" = "manjaro" ] ; then
         ReportUnsupported -D $DIST -R $REV
-        # Workaround for https://github.com/powershell/powershell/issues/6132
-        export TERM=xterm
+        WorkaroundTerminalIssue
     fi
+}
+
+WorkaroundTerminalIssue(){
+    # Workaround for https://github.com/powershell/powershell/issues/6132
+    export TERM=xterm
 }
 
 echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
