@@ -57,6 +57,8 @@ TestDistro(){
     elif [ "${DIST}" = "manjaro" ] ; then
         ReportUnsupported -D $DIST -R $REV
         WorkaroundTerminalIssue
+    elif [ "${DistroBasedOn}" = "arch" ] ; then
+        ReportUnsupported -D $DIST -R $REV
     fi
 }
 
@@ -78,7 +80,7 @@ ReportUnsupported(){
         esac
     done
 
-    echoerr "Warning: PowerShell 6.0 does not support $Dist $Rev!"
+    echoerr "Warning: PowerShell 6.0 does not support $Dist $Rev and only community support is available!"
 }
 
 # Test if the Distrobution is supported
