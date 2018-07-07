@@ -11,7 +11,7 @@ TestDistro(){
     local MACH=`uname -m`
     local DIST
     local DistroBasedOn
-    local REV
+    local REV="-"
 
     if [ -f /etc/redhat-release ] ; then
         DistroBasedOn='redhat'
@@ -35,6 +35,13 @@ TestDistro(){
         DistroBasedOn='debian'
         DIST=`cat /etc/lsb-release | grep '^DISTRIB_ID' | awk -F=  '{ print $2 }'`
         REV=`cat /etc/lsb-release | grep '^DISTRIB_RELEASE' | awk -F=  '{ print $2 }'`
+    elif [ -f /etc/arch-release ] ; then
+        DIST=`cat /etc/os-release | grep '^ID' | awk -F=  '{ print $2 }'`
+        if [ -f /etc/manjaro-release ] ; then
+            DistroBasedOn='manjaro'
+        else
+            DistroBasedOn='arch'
+        fi
     fi
     if [ -f /etc/UnitedLinux-release ] ; then
         DIST="${DIST}[`cat /etc/UnitedLinux-release | tr "\n" ' ' | sed s/VERSION.*//`]"
@@ -43,6 +50,9 @@ TestDistro(){
     DIST=`lowercase $DIST`
 
     # Tests for unsupported distrobutions go here
+    if [ "${DIST}" = "manjaro" ] ; then
+        ReportUnsupported -D $DIST -R $REV
+    fi
 }
 
 echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
