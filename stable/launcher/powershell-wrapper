@@ -49,18 +49,18 @@ TestDistro(){
     DistroBasedOn=`lowercase $DistroBasedOn`
     DIST=`lowercase $DIST`
 
-    # Tests for unsupported distrobutions go here
+    # Tests for unsupported distributions go here
     if [ "${DIST}" = "fedora" -a "${REV}" = "28" ] ; then
         #Fedora 28 is unsupported and needs a workaround to function
         ReportUnsupported -D $DIST -R $REV
         echoerr "Use 'powershell-preview' package for support."
         WorkaroundTerminalIssue
     elif [ "${DIST}" = "manjaro" ] ; then
-        # The Manjaro distro is supported and needs a workaround
+        # The Manjaro distribution is supported and needs a workaround
         ReportUnsupported -D $DIST -R $REV
         WorkaroundTerminalIssue
     elif [ "${DistroBasedOn}" = "arch" ] ; then
-        # All distro based on arch all unsupported
+        # All distributions based on arch all unsupported
         ReportUnsupported -D $DIST -R $REV
     fi
 }

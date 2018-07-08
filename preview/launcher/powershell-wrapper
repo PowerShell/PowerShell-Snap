@@ -49,10 +49,12 @@ TestDistro(){
     DistroBasedOn=`lowercase $DistroBasedOn`
     DIST=`lowercase $DIST`
 
-    # Tests for unsupported distrobutions go here
+    # Tests for unsupported distributions go here
     if [ "${DIST}" = "manjaro" ] ; then
+        # The Manjaro distribution is supported and needs a workaround
         ReportUnsupported -D $DIST -R $REV
     elif [ "${DistroBasedOn}" = "arch" ] ; then
+        # All distributions based on arch all unsupported
         ReportUnsupported -D $DIST -R $REV
     fi
 }
