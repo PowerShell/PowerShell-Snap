@@ -50,11 +50,14 @@ TestDistro(){
     DIST=`lowercase $DIST`
 
     # Tests for unsupported distributions go here
-    if [ "${DIST}" = "manjaro" ] ; then
-        # The Manjaro distribution is supported and needs a workaround
+    if [ "${DIST}" = "ubuntu" -a "${REV}" = "18.10" ] ; then
+        #Ubuntu 18.10 is unsupported
+        ReportUnsupported -D $DIST -R $REV
+    elif [ "${DIST}" = "manjaro" ] ; then
+        # The Manjaro distribution is unsupported
         ReportUnsupported -D $DIST -R $REV
     elif [ "${DistroBasedOn}" = "arch" ] ; then
-        # All distributions based on arch all unsupported
+        # All distributions based on arch are unsupported
         ReportUnsupported -D $DIST -R $REV
     fi
 }
