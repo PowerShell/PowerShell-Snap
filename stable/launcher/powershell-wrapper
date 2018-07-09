@@ -11,7 +11,7 @@ TestDistro(){
     local MACH=`uname -m`
     local DIST
     local DistroBasedOn
-    local REV
+    local REV="-"
 
     if [ -f /etc/redhat-release ] ; then
         DistroBasedOn='redhat'
@@ -35,6 +35,13 @@ TestDistro(){
         DistroBasedOn='debian'
         DIST=`cat /etc/lsb-release | grep '^DISTRIB_ID' | awk -F=  '{ print $2 }'`
         REV=`cat /etc/lsb-release | grep '^DISTRIB_RELEASE' | awk -F=  '{ print $2 }'`
+    elif [ -f /etc/arch-release ] ; then
+        DIST=`cat /etc/os-release | grep '^ID' | awk -F=  '{ print $2 }'`
+        if [ -f /etc/manjaro-release ] ; then
+            DistroBasedOn='manjaro'
+        else
+            DistroBasedOn='arch'
+        fi
     fi
     if [ -f /etc/UnitedLinux-release ] ; then
         DIST="${DIST}[`cat /etc/UnitedLinux-release | tr "\n" ' ' | sed s/VERSION.*//`]"
@@ -42,12 +49,25 @@ TestDistro(){
     DistroBasedOn=`lowercase $DistroBasedOn`
     DIST=`lowercase $DIST`
 
-    # Tests for unsupported distrobutions go here
+    # Tests for unsupported distributions go here
     if [ "${DIST}" = "fedora" -a "${REV}" = "28" ] ; then
+        #Fedora 28 is unsupported and needs a workaround to function
         ReportUnsupported -D $DIST -R $REV
-        # Workaround for https://github.com/powershell/powershell/issues/6132
-        export TERM=xterm
+        echoerr "Use 'powershell-preview' package for support."
+        WorkaroundTerminalIssue
+    elif [ "${DIST}" = "manjaro" ] ; then
+        # The Manjaro distribution is supported and needs a workaround
+        ReportUnsupported -D $DIST -R $REV
+        WorkaroundTerminalIssue
+    elif [ "${DistroBasedOn}" = "arch" ] ; then
+        # All distributions based on arch all unsupported
+        ReportUnsupported -D $DIST -R $REV
     fi
+}
+
+WorkaroundTerminalIssue(){
+    # Workaround for https://github.com/powershell/powershell/issues/6132
+    export TERM=xterm
 }
 
 echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
@@ -63,7 +83,7 @@ ReportUnsupported(){
         esac
     done
 
-    echoerr "Warning: PowerShell 6.0 does not support $Dist $Rev!"
+    echoerr "Warning: PowerShell 6.0 does not support $Dist $Rev and only community support is available!"
 }
 
 # Test if the Distrobution is supported
