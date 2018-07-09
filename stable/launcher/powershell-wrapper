@@ -55,12 +55,16 @@ TestDistro(){
         ReportUnsupported -D $DIST -R $REV
         echoerr "Use 'powershell-preview' package for support."
         WorkaroundTerminalIssue
+    elif [ "${DIST}" = "ubuntu" -a "${REV}" = "18.10" ] ; then
+        #Ubuntu 18.10 is unsupported and needs a workaround to function
+        ReportUnsupported -D $DIST -R $REV
+        WorkaroundTerminalIssue
     elif [ "${DIST}" = "manjaro" ] ; then
-        # The Manjaro distribution is supported and needs a workaround
+        # The Manjaro distribution is unsupported and needs a workaround
         ReportUnsupported -D $DIST -R $REV
         WorkaroundTerminalIssue
     elif [ "${DistroBasedOn}" = "arch" ] ; then
-        # All distributions based on arch all unsupported
+        # All distributions based on arch are unsupported
         ReportUnsupported -D $DIST -R $REV
     fi
 }
