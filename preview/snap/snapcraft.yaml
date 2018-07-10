@@ -25,21 +25,10 @@ confinement: classic
 
 apps:
   powershell-preview:
-    command: bin/powershell-wrapper
+    command: opt/powershell/pwsh
 
 parts:
-    # A wrapper script
-  launchers:
-      plugin: dump
-      source: .
-      organize:
-          launcher/powershell-wrapper: bin/powershell-wrapper
-      filesets:
-          wrapper: [bin/powershell-wrapper]
-      stage: [$wrapper]
-      snap: [$wrapper]
   powershell-preview:
-    after: [launchers]
     plugin: nil
     override-build: |
       file="./version.txt"
