@@ -10,7 +10,7 @@ version-script: |
   then
     cat $file
   else
-    version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .ReleaseTag | sed 's/"//g' | sed 's/v//')
+    version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .StableReleaseTag | sed 's/"//g' | sed 's/v//')
     echo $version
   fi
 summary: PowerShell for every system!
@@ -49,7 +49,7 @@ parts:
         version=$(cat $file)
       else
         echo "getting latest version from GitHub"
-        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .ReleaseTag | sed 's/"//g' | sed 's/v//')
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .StableReleaseTag | sed 's/"//g' | sed 's/v//')
         echo "Writing version to file"
         echo $version > $file
       fi
@@ -73,12 +73,9 @@ parts:
       done >> $thirdPartyNoticeFile
       echo "Done building third party notices file - $thirdPartyNoticeFile"
     stage-packages:
-      - libcurl3
       - libicu55
       - liblttng-ust0
       - libssl1.0.0
-      - libunwind8
-      - libuuid1
       - zlib1g
     build-packages:
       - curl

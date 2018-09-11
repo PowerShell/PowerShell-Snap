@@ -26,7 +26,8 @@ RUN apt-get update && \
 # Clean up so the layer is small
     apt remove --yes --purge apt-utils apt-transport-https && \
     apt-get autoclean --yes && \
-    apt-get clean --yes
+    apt-get clean --yes && \ 
+    rm /etc/apt/sources.list.d/microsoft.list
 
 COPY powershell-snap.ps1 /powershell-snap.ps1
 COPY powershell-snap.sh /powershell-snap.sh
