@@ -62,12 +62,9 @@ parts:
       done >> $thirdPartyNoticeFile
       echo "Done building third party notices file - $thirdPartyNoticeFile"
     stage-packages:
-      - libcurl3
       - libicu55
       - liblttng-ust0
       - libssl1.0.0
-      - libunwind8
-      - libuuid1
       - zlib1g
     build-packages:
       - curl
