@@ -10,7 +10,7 @@ version-script: |
   then
     cat $file
   else
-    version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .ReleaseTag | sed 's/"//g' | sed 's/v//')
+    version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .StableReleaseTag | sed 's/"//g' | sed 's/v//')
     echo $version
   fi
 summary: PowerShell for every system!
@@ -38,7 +38,7 @@ parts:
         version=$(cat $file)
       else
         echo "getting latest version from GitHub"
-        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .ReleaseTag | sed 's/"//g' | sed 's/v//')
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .StableReleaseTag | sed 's/"//g' | sed 's/v//')
         echo "Writing version to file"
         echo $version > $file
       fi
