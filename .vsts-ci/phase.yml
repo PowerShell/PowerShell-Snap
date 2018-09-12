@@ -1,7 +1,6 @@
 parameters:
   queue: 'Hosted Ubuntu 1604'
   snapChannel: 'stable'
-  SnapName: powershell
 
 phases:
 - phase: ${{ parameters.SnapChannel }}
@@ -11,7 +10,6 @@ phases:
     name: ${{ parameters.queue }}
 
   variables:
-    SnapName: ${{ parameters.SnapName }}
     SnapChannel: ${{ parameters.SnapChannel }}
 
   steps:
@@ -57,7 +55,7 @@ phases:
   - powershell: |  
         sudo mkdir "/snap/powershell"
         sudo unsquashfs -d "/snap/powershell/current" $(PS_SNAP_PATH)
-    displayName: 'Install $(SnapName) snap'
+    displayName: 'Install $(SnapChannel) snap'
     condition: succeeded()
 
   - powershell: |
@@ -65,14 +63,14 @@ phases:
         sudo cp ./assets/powershell-wrapper /snap/bin/powershell
         sudo chmod +x /snap/bin/powershell
         Write-Host "##vso[task.setvariable variable=SNAP;]/snap/powershell/current"
-        Write-Host "##vso[task.setvariable variable=SNAP_NAME;]$(SnapName)"
+        Write-Host "##vso[task.setvariable variable=SNAP_NAME;]$(SnapChannel)"
         Write-Host "##vso[task.setvariable variable=PATH;]/snap/bin:$env:PATH"
-    displayName: 'Setup $(SnapName) snap'
+    displayName: 'Setup $(SnapChannel) snap'
     condition: succeeded()
 
   - powershell: |
         powershell -nologo -c '$psversiontable'
-    displayName: 'Test $(SnapName) snap'
+    displayName: 'Test $(SnapChannel) snap'
     condition: succeeded()
 
   # Uploads any packages as an artifact

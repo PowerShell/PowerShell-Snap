@@ -17,9 +17,7 @@ phases:
 - template: ./phase.yml
   parameters:
     SnapChannel: stable
-    SnapName: powershell
 
 - template: ./phase.yml
   parameters:
     SnapChannel: preview
-    SnapName: powershell-preview
