@@ -37,6 +37,12 @@ phases:
         {
           throw "snap build failed"
         }
+        else
+        {
+          $message = "vso[task.setvariable variable=PS_SNAP_PATH;]$snap"
+          Write-Host $message
+          Write-Host "##$message"
+        }
     displayName: 'Build $(SnapChannel)'
     condition: succeeded()
     continueOnError: true
@@ -49,13 +55,6 @@ phases:
         sudo unsquashfs -d /snap/core/current ./core.snap
         Remove-Item -path ./core.snap
     displayName: 'Install core snap'
-    condition: succeeded()
-
-  - powershell: |
-      $snap = Get-ChildItem "$env:AGENT_TEMPDIRECTORY/*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
-      Write-Host "snap- $snap"
-      Write-Host "##vso[task.setvariable variable=PS_SNAP_PATH;]$snap"
-    displayName: 'Find Snap'
     condition: succeeded()
 
   - powershell: |
@@ -85,5 +84,5 @@ phases:
         Write-Host "##vso[artifact.upload containerfolder=artifacts;artifactname=artifacts]$_"
       }
     displayName: Publish Artifacts
-    condition: ne(variables['Build.Reason'], 'PullRequest')
+    condition: succeeded()
     continueOnError: true
