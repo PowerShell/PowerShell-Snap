@@ -14,7 +14,7 @@ RUN apt-get update && \
   apt-get autoclean --yes && \
   apt-get clean --yes
 
-COPY bin/snapcraft-wrapper /snap/bin/snapcraft
+COPY snapcraft-wrapper /snap/bin/snapcraft
 
 ENV PATH=/snap/bin:$PATH
 
