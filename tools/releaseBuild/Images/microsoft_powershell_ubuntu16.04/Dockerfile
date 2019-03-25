@@ -30,6 +30,7 @@ RUN apt-get update && \
         ca-certificates \
         apt-transport-https \
         git && \
+        gnupg2 && \
 # Import the public repository GPG keys for Microsoft
     curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -  && \
 # Register the Microsoft Ubuntu 16.04 repository with apt
