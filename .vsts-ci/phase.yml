@@ -14,7 +14,7 @@ phases:
 
   steps:
 
-  - powershell: 'dir env:' 
+  - powershell: 'dir env:'
     displayName: 'Capture Environment'
 
   - powershell: |
@@ -38,6 +38,7 @@ phases:
 
   - powershell: |
         $downloadUrl = Invoke-RestMethod -Headers @{'X-Ubuntu-Series'='16'} -Uri 'https://api.snapcraft.io/api/v1/snaps/details/core' | Select-Object -ExpandProperty download_url
+        Write-Verbose "downloadUrl: $downloadUrl" -verbose
         Invoke-WebRequest -Uri $downloadUrl -OutFile ./core.snap
         sudo mkdir /snap/core
         sudo unsquashfs -d /snap/core/current ./core.snap
@@ -52,7 +53,7 @@ phases:
     displayName: 'Find Snap'
     condition: succeeded()
 
-  - powershell: |  
+  - powershell: |
         sudo mkdir "/snap/powershell"
         sudo unsquashfs -d "/snap/powershell/current" $(PS_SNAP_PATH)
     displayName: 'Install $(SnapChannel) snap'
