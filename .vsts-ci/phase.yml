@@ -2,19 +2,18 @@ parameters:
   queue: 'Hosted Ubuntu 1604'
   snapChannel: 'stable'
 
-phases:
-- phase: ${{ parameters.SnapChannel }}
+jobs:
+- job: ${{ parameters.SnapChannel }}
   displayName: ${{ parameters.SnapChannel }}
 
-  queue:
-    name: ${{ parameters.queue }}
+  pool: ${{ parameters.queue }}
 
   variables:
     SnapChannel: ${{ parameters.SnapChannel }}
 
   steps:
 
-  - powershell: 'dir env:' 
+  - powershell: 'dir env:'
     displayName: 'Capture Environment'
 
   - powershell: |
@@ -32,12 +31,24 @@ phases:
           }
         }
         ./tools/releaseBuild/vstsbuild.ps1 -Name $buildName
+        $snap = Get-ChildItem "$env:AGENT_TEMPDIRECTORY/*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
+        if(!$snap)
+        {
+          throw "snap build failed"
+        }
+        else
+        {
+          $message = "vso[task.setvariable variable=PS_SNAP_PATH;]$snap"
+          Write-Host $message
+          Write-Host "##$message"
+        }
     displayName: 'Build $(SnapChannel)'
     condition: succeeded()
     continueOnError: true
 
   - powershell: |
         $downloadUrl = Invoke-RestMethod -Headers @{'X-Ubuntu-Series'='16'} -Uri 'https://api.snapcraft.io/api/v1/snaps/details/core' | Select-Object -ExpandProperty download_url
+        Write-Verbose "downloadUrl: $downloadUrl" -verbose
         Invoke-WebRequest -Uri $downloadUrl -OutFile ./core.snap
         sudo mkdir /snap/core
         sudo unsquashfs -d /snap/core/current ./core.snap
@@ -46,13 +57,6 @@ phases:
     condition: succeeded()
 
   - powershell: |
-      $snap = Get-ChildItem "$env:AGENT_TEMPDIRECTORY/*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
-      Write-Host "snap- $snap"
-      Write-Host "##vso[task.setvariable variable=PS_SNAP_PATH;]$snap"
-    displayName: 'Find Snap'
-    condition: succeeded()
-
-  - powershell: |  
         sudo mkdir "/snap/powershell"
         sudo unsquashfs -d "/snap/powershell/current" $(PS_SNAP_PATH)
     displayName: 'Install $(SnapChannel) snap'
@@ -79,5 +83,5 @@ phases:
         Write-Host "##vso[artifact.upload containerfolder=artifacts;artifactname=artifacts]$_"
       }
     displayName: Publish Artifacts
-    condition: ne(variables['Build.Reason'], 'PullRequest')
+    condition: succeeded()
     continueOnError: true

@@ -7,7 +7,8 @@
       "BuildCommand": "/powershell-snap.sh -location _RepoDestinationPath_ -destination _DockerVolume_ -ReleaseTag _ReleaseTag_",
       "AdditionalContextFiles": [
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.sh",
-        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1"
+        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
+        "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
       "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu16.04/Dockerfile",
       "DockerImageName": "ps-snap-ubunutu-16-04",
@@ -19,7 +20,8 @@
       "BuildCommand": "/powershell-snap.sh -location _RepoDestinationPath_ -destination _DockerVolume_ -ReleaseTag _ReleaseTag_ -Preview",
       "AdditionalContextFiles": [
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.sh",
-        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1"
+        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
+        "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
       "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu16.04/Dockerfile",
       "DockerImageName": "ps-snap-ubunutu-16-04",
@@ -31,7 +33,8 @@
       "BuildCommand": "/powershell-snap.sh -location _RepoDestinationPath_ -destination _DockerVolume_",
       "AdditionalContextFiles": [
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.sh",
-        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1"
+        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
+        "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
       "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu16.04/Dockerfile",
       "DockerImageName": "ps-snap-ubunutu-16-04",
@@ -43,7 +46,8 @@
       "BuildCommand": "/powershell-snap.sh -location _RepoDestinationPath_ -destination _DockerVolume_ -preview",
       "AdditionalContextFiles": [
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.sh",
-        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1"
+        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
+        "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
       "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu16.04/Dockerfile",
       "DockerImageName": "ps-snap-ubunutu-16-04",

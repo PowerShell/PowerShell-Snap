@@ -4,6 +4,7 @@ icon: assets/icon.png
 
 # the version number is not used, but required
 version: 6.0.1
+base: core
 version-script: |
   file="./version.txt"
   if [ -f "$file" ]
@@ -37,7 +38,7 @@ parts:
       filesets:
           wrapper: [bin/powershell-wrapper]
       stage: [$wrapper]
-      snap: [$wrapper]
+      prime: [$wrapper]
   powershell:
     after: [launchers]
     plugin: nil
@@ -63,7 +64,7 @@ parts:
       thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
       echo "building third party notices file - $thirdPartyNoticeFile"
       cat thirdPartyNoticeHeader.txt > $thirdPartyNoticeFile
-      find $SNAPCRAFT_PART_INSTALL -type f -name 'copyright' -print | while read filename; do 
+      find $SNAPCRAFT_PART_INSTALL -type f -name 'copyright' -print | while read filename; do
         libname=$(dirname $filename | sed 's,^\(.*/\)\?\([^/]*\),\2,')
         echo ''
         echo '---------------------------------------------'
