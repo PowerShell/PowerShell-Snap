@@ -32,6 +32,11 @@ phases:
           }
         }
         ./tools/releaseBuild/vstsbuild.ps1 -Name $buildName
+        $snap = Get-ChildItem "$env:AGENT_TEMPDIRECTORY/*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
+        if(!$snap)
+        {
+          throw "snap build failed"
+        }
     displayName: 'Build $(SnapChannel)'
     condition: succeeded()
     continueOnError: true
