@@ -4,7 +4,7 @@ icon: assets/icon.png
 
 # the version number is not used, but required
 version: 6.0.1
-base: core18
+base: core
 version-script: |
   file="./version.txt"
   if [ -f "$file" ]
@@ -74,7 +74,7 @@ parts:
       done >> $thirdPartyNoticeFile
       echo "Done building third party notices file - $thirdPartyNoticeFile"
     stage-packages:
-      - libicu60
+      - libicu55
       - liblttng-ust0
       - libssl1.0.0
       - zlib1g
