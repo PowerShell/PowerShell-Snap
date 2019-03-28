@@ -4,7 +4,7 @@ icon: assets/icon.png
 
 # the version number is not used, but required
 version: 6.0.1
-base: core
+#base: core
 version-script: |
   file="./version.txt"
   if [ -f "$file" ]
