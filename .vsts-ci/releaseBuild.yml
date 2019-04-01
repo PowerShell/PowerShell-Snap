@@ -1,0 +1,29 @@
+resources:
+- repo: self
+  clean: true
+
+variables:
+  POWERSHELL_TELEMETRY_OPTOUT: 1
+
+jobs:
+
+- template: ./templates/releaseBuildPhase.yml
+  parameters:
+    channel: stable
+
+- template: ./templates/releaseBuildPhase.yml
+  parameters:
+    channel: preview
+
+- template: ./templates/virusScanPhase.yml
+  parameters:
+    parentJobs:
+      - build_stable
+      - build_preview
+
+- template: ./templates/pushPhase.yml
+  parameters:
+    parentJobs:
+      - build_stable
+      - build_preview
+      - virus_scan

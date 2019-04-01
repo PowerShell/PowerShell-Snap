@@ -1,0 +1,52 @@
+parameters:
+  vmImage: 'ubuntu-16.04'
+  parentJobs: []
+
+jobs:
+- job: push
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+
+  displayName: Push to Store
+
+  dependsOn:
+    ${{ parameters.parentJobs }}
+
+  steps:
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Build Artifacts'
+    inputs:
+      downloadType: specific
+      itemPattern: '**/*.snap'
+
+  - powershell: |
+      sudo apt-get update
+      sudo apt-get install -y snapcraft
+    displayName: 'Install snapcraft'
+
+  - powershell: |
+      $loginFile='./snapstore.login'
+
+      '$(SNAPLOGIN)' | base64 --decode --ignore-garbage > $loginFile
+      snapcraft login --with $loginFile
+      rm $loginFile
+    displayName: 'snapcraft login'
+
+  - powershell: |
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
+
+      foreach($snap in $snaps)
+      {
+        snapcraft push --release edge $snap
+      }
+    displayName: 'snapcraft push'
+
+  - powershell: |
+      snapcraft logout
+    displayName: 'snapcraft logout'
+    condition: always()
+
+  - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+    displayName: 'Component Detection'
+
+
