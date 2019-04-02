@@ -1,0 +1,32 @@
+parameters:
+  vmImage: 'ubuntu-16.04'
+  channel: ''
+
+jobs:
+- job: build_${{ parameters.channel }}
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+
+  displayName: Build ${{ parameters.channel }}
+
+  steps:
+  - powershell: 'dir env:'
+    displayName: 'Capture Environment'
+
+  - powershell: |
+      $releaseTag = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | Select-Object -ExpandProperty ${{ parameters.channel }}ReleaseTag
+      Write-Host "$releaseTag"
+      Write-Host "##vso[task.setvariable variable=releaseTag;]$releaseTag"
+    displayName: Get Latest ${{ parameters.channel }} Release Tag
+    condition: and(succeeded(), not(startsWith(variables['releaseTag'], 'v')))
+
+  - task: PowerShell@2
+    displayName: Build snap ${{ parameters.channel }}
+    inputs:
+      targetType: filePath
+      filePath: ./tools/releaseBuild/vstsbuild.ps1
+      arguments: '-ReleaseTag $(releaseTag) -Name powershell-snap'
+    condition: and(succeeded(), ne(variables['${{ parameters.channel }}'],'no'))
+
+  - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+    displayName: 'Component Detection'

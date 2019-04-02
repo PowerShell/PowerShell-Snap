@@ -1,0 +1,27 @@
+parameters:
+  parentJobs: []
+
+jobs:
+- job: virus_scan
+  pool:
+    name: 'Package ES CodeHub Lab E'
+
+  displayName: Virus Scan
+
+  dependsOn:
+    ${{ parameters.parentJobs }}
+
+  steps:
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Build Artifacts'
+    inputs:
+      downloadType: specific
+
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-antimalware.AntiMalware@3
+    displayName: 'Run Virus Scan'
+    inputs:
+      FileDirPath: '$(System.ArtifactsDirectory)'
+
+  - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+    displayName: 'Component Detection'
+
