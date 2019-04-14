@@ -78,6 +78,7 @@ parts:
       - liblttng-ust0
       - libssl1.0.0
       - zlib1g
+      - debianutils
     build-packages:
       - curl
       - jq
