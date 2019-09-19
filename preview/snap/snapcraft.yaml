@@ -61,6 +61,10 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
       tar zxf powershell.tar.gz -C $SNAPCRAFT_PART_INSTALL/opt/powershell
       chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
+      ln -sfn $SNAPCRAFT_PART_INSTALL/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
+      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
+      ln -sfn $SNAPCRAFT_PART_INSTALL/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
       thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
       echo "building third party notices file - $thirdPartyNoticeFile"
       cat thirdPartyNoticeHeader.txt > $thirdPartyNoticeFile
