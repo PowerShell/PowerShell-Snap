@@ -5,4 +5,7 @@
 # Create $XDG_RUNTIME_DIR if it doesn't exist
 [ -n "$XDG_RUNTIME_DIR" ] && mkdir -p $XDG_RUNTIME_DIR -m 700
 
+# .NET does some dynmanic loads and the only way we know of to change the location, is to set this variable
+export LD_LIBRARY_PATH="$SNAP/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines:$SNAP/usr/lib/x86_64-linux-gnu"
+
 exec "$SNAP/opt/powershell/pwsh" "$@"
