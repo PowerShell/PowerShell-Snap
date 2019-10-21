@@ -21,3 +21,4 @@ jobs:
 - template: ./phase.yml
   parameters:
     SnapChannel: preview
+    queue: ubuntu-18.04

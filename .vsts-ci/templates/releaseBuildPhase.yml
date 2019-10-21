@@ -25,7 +25,7 @@ jobs:
     inputs:
       targetType: filePath
       filePath: ./tools/releaseBuild/vstsbuild.ps1
-      arguments: '-ReleaseTag $(releaseTag) -Name powershell-snap'
+      arguments: -ReleaseTag $(releaseTag)
     condition: and(succeeded(), ne(variables['${{ parameters.channel }}'],'no'))
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0

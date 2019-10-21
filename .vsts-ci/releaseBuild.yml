@@ -14,6 +14,7 @@ jobs:
 - template: ./templates/releaseBuildPhase.yml
   parameters:
     channel: preview
+    vmImage: ubuntu-18.04
 
 - template: ./templates/virusScanPhase.yml
   parameters:

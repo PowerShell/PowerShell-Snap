@@ -2,18 +2,8 @@ name: powershell-preview
 
 icon: assets/icon.png
 
-# the version number is not used, but required
-version: 6.0.1
-#base: core
-version-script: |
-  file="./version.txt"
-  if [ -f "$file" ]
-  then
-    cat $file
-  else
-    version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
-    echo $version
-  fi
+adopt-info: powershell-preview
+base: core18
 summary: PowerShell for every system!
 description: |
   PowerShell is an automation and configuration management platform.
@@ -42,6 +32,17 @@ parts:
   powershell-preview:
     after: [launchers]
     plugin: nil
+    override-pull: |
+      snapcraftctl pull
+      file="./version.txt"
+      if [ -f "$file" ]
+      then
+        version=$(cat $file)
+      else
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
+      fi
+      snapcraftctl set-version "$version"
+      snapcraftctl set-grade "devel"
     override-build: |
       file="./version.txt"
       if [ -f "$file" ]
@@ -84,10 +85,25 @@ parts:
       done >> $thirdPartyNoticeFile
       echo "Done building third party notices file - $thirdPartyNoticeFile"
     stage-packages:
-      - libicu55
+      - libicu60
       - liblttng-ust0
       - libssl1.0.0
       - zlib1g
+      - libasn1-8-heimdal
+      - libcurl4
+      - libgssapi3-heimdal
+      - libhcrypto4-heimdal
+      - libheimbase1-heimdal
+      - libheimntlm0-heimdal
+      - libhx509-5-heimdal
+      - libkrb5-26-heimdal
+      - libldap-2.4-2
+      - libnghttp2-14
+      - libpsl5
+      - libroken18-heimdal
+      - librtmp1
+      - libsasl2-2
+      - libwind0-heimdal
     build-packages:
       - curl
       - jq
