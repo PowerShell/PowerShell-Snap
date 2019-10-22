@@ -3,6 +3,7 @@
 # Licensed under the MIT License.
 
 # Create $XDG_RUNTIME_DIR if it doesn't exist
-[ -n "$XDG_RUNTIME_DIR" ] && mkdir -p $XDG_RUNTIME_DIR -m 700
+# || true causes bash to ignore errors
+[ -n "$XDG_RUNTIME_DIR" ] && mkdir -p $XDG_RUNTIME_DIR -m 700 || true
 
 exec "$SNAP/opt/powershell/pwsh" "$@"

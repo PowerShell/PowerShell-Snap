@@ -1,17 +1,25 @@
 parameters:
-  queue: 'Hosted Ubuntu 1604'
+  queue: ubuntu-16.04
   snapChannel: 'stable'
+  test: Yes
 
 jobs:
 - job: ${{ parameters.SnapChannel }}
   displayName: ${{ parameters.SnapChannel }}
 
-  pool: ${{ parameters.queue }}
+  pool:
+    vmImage: ${{ parameters.queue }}
 
   variables:
     SnapChannel: ${{ parameters.SnapChannel }}
+    vmImage: ${{ parameters.queue }}
 
   steps:
+
+  - powershell: |
+        sudo chown root:root /
+    displayName: 'Make sure root owns root'
+    condition: succeeded()
 
   - powershell: 'dir env:'
     displayName: 'Capture Environment'
@@ -22,15 +30,23 @@ jobs:
         {
           'stable' {
             $buildName = 'powershell-snap-latest'
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
           }
           'preview' {
             $buildName = 'powershell-snap-preview-latest'
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell-preview"
+            Write-Host $message
+            Write-Host "##$message"
           }
           default {
             throw "Unknown channel: $channel"
           }
         }
+        Write-Host "Building snap..."
         ./tools/releaseBuild/vstsbuild.ps1 -Name $buildName
+        Write-Host "finding snap..."
         $snap = Get-ChildItem "$env:AGENT_TEMPDIRECTORY/*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
         if(!$snap)
         {
@@ -47,39 +63,24 @@ jobs:
     continueOnError: true
 
   - powershell: |
-        $downloadUrl = Invoke-RestMethod -Headers @{'X-Ubuntu-Series'='16'} -Uri 'https://api.snapcraft.io/api/v1/snaps/details/core' | Select-Object -ExpandProperty download_url
-        Write-Verbose "downloadUrl: $downloadUrl" -verbose
-        Invoke-WebRequest -Uri $downloadUrl -OutFile ./core.snap
-        sudo mkdir /snap/core
-        sudo unsquashfs -d /snap/core/current ./core.snap
-        Remove-Item -path ./core.snap
-    displayName: 'Install core snap'
-    condition: succeeded()
-
-  - powershell: |
-        sudo mkdir "/snap/powershell"
-        sudo unsquashfs -d "/snap/powershell/current" $(PS_SNAP_PATH)
+        sudo snap install $(PS_SNAP_PATH) --classic --dangerous
     displayName: 'Install $(SnapChannel) snap'
     condition: succeeded()
 
   - powershell: |
-        sudo mkdir /snap/bin
-        sudo cp ./assets/powershell-wrapper /snap/bin/powershell
-        sudo chmod +x /snap/bin/powershell
-        Write-Host "##vso[task.setvariable variable=SNAP;]/snap/powershell/current"
-        Write-Host "##vso[task.setvariable variable=SNAP_NAME;]$(SnapChannel)"
-        Write-Host "##vso[task.setvariable variable=PATH;]/snap/bin:$env:PATH"
-    displayName: 'Setup $(SnapChannel) snap'
-    condition: succeeded()
+        &"$(PS_SNAP_EXEC)" -nologo -c '$psversiontable'
+    displayName: 'Test $(PS_SNAP_EXEC) snap'
+    condition: and(succeeded(), eq('${{ parameters.test }}','Yes'))
 
   - powershell: |
-        powershell -nologo -c '$psversiontable'
-    displayName: 'Test $(SnapChannel) snap'
-    condition: succeeded()
+        $env:COREHOST_TRACE=1
+        /snap/$(PS_SNAP_EXEC)/current/opt/powershell/pwsh -nologo -c '$psversiontable'
+    displayName: 'Alternative Test $(PS_SNAP_EXEC) snap'
+    condition: and(succeeded(), ne('${{ parameters.test }}','Yes'))
 
   # Uploads any packages as an artifact
   - powershell: |
       Write-Host "##vso[artifact.upload containerfolder=artifacts;artifactname=artifacts]$(PS_SNAP_PATH)"
     displayName: Publish Artifact
-    condition: succeeded()
+    condition: always()
     continueOnError: true
