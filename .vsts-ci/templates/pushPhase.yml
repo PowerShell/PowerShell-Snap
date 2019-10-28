@@ -13,6 +13,10 @@ jobs:
     ${{ parameters.parentJobs }}
 
   steps:
+  - powershell: |
+      tools/releaseBuild/setRelease.ps1
+    displayName: 'Set ReleaseTag Variable'
+
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts'
     inputs:
@@ -37,7 +41,7 @@ jobs:
 
       foreach($snap in $snaps)
       {
-        snapcraft push --release edge $snap
+        snapcraft push --release $(ReleaseTag) $snap
       }
     displayName: 'snapcraft push'
 
