@@ -2,6 +2,8 @@ name: powershell-preview
 
 icon: assets/icon.png
 
+grade: stable
+
 adopt-info: powershell-preview
 base: core18
 summary: PowerShell for every system!
@@ -89,44 +91,6 @@ parts:
       - liblttng-ust0
       - libssl1.0.0
       - zlib1g
-      - libasn1-8-heimdal
-      - libaudit1
-      - libcap-ng0
-      - libcom-err2
-      - libcurl4
-      - libffi6
-      - libgcc1
-      - libgmp10
-      - libgnutls30
-      - libgssapi-krb5-2
-      - libgssapi3-heimdal
-      - libhcrypto4-heimdal
-      - libheimbase1-heimdal
-      - libheimntlm0-heimdal
-      - libhogweed4
-      - libhx509-5-heimdal
-      - libidn2-0
-      - libk5crypto3
-      - libkeyutils1
-      - libkrb5-26-heimdal
-      - libkrb5-3
-      - libkrb5support0
-      - libldap-2.4-2
-      - libnettle6
-      - libnghttp2-14
-      - libp11-kit0
-      - libpam0g
-      - libpsl5
-      - libroken18-heimdal
-      - librtmp1
-      - libsasl2-2
-      - libsqlite3-0
-      - libssl1.1
-      - libstdc++6
-      - libtasn1-6
-      - libunistring2
-      - libwind0-heimdal
-      - libdb5.3
     build-packages:
       - curl
       - jq

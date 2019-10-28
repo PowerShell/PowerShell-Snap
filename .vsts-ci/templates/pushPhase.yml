@@ -7,7 +7,7 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
 
-  displayName: Push to Store
+  displayName: Push to Store2
 
   variables:
     ReleaseTag: hotfix/default
