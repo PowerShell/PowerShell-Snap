@@ -91,7 +91,6 @@ parts:
       - zlib1g
       - libasn1-8-heimdal
       - libaudit1
-      - libc6
       - libcap-ng0
       - libcom-err2
       - libcurl4
@@ -127,6 +126,7 @@ parts:
       - libtasn1-6
       - libunistring2
       - libwind0-heimdal
+      - libdb5.3
     build-packages:
       - curl
       - jq

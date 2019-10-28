@@ -9,19 +9,42 @@ jobs:
 
   displayName: Push to Store
 
+  variables:
+    ReleaseTag: hotfix/default
+
   dependsOn:
     ${{ parameters.parentJobs }}
 
   steps:
-  - powershell: |
-      tools/releaseBuild/setRelease.ps1
-    displayName: Set ReleaseTag Variable
-
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts'
     inputs:
       downloadType: specific
       itemPattern: '**/*.snap'
+
+  - powershell: |
+      [string]$Branch=$env:BUILD_SOURCEBRANCH,
+      [string]$Variable='ReleaseTag'
+      $branchOnly = $Branch -replace '^refs/heads/';
+      $branchOnly = $branchOnly -replace '[_\-]'
+      if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
+      {
+          Write-verbose "release branch:" -verbose
+          $releaseTag = 'edge'
+          $vstsCommandString = "vso[task.setvariable variable=$Variable]$releaseTag"
+          Write-Verbose -Message "setting $Variable to $releaseTag" -Verbose
+          Write-Host -Object "##$vstsCommandString"
+      }
+      else
+      {
+          Write-verbose "non-release branch" -verbose
+          # Branch is named <previewname>
+          $releaseTag = "hotfix/$branchOnly"
+          $vstsCommandString = "vso[task.setvariable variable=$Variable]$releaseTag"
+          Write-Verbose -Message "setting $Variable to $releaseTag" -Verbose
+          Write-Host -Object "##$vstsCommandString"
+      }
+    displayName: Set ReleaseTag Variable
 
   - powershell: |
       sudo apt-get update
