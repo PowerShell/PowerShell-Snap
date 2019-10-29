@@ -38,7 +38,7 @@ jobs:
       {
           Write-verbose "non-release branch" -verbose
           # Branch is named <previewname>
-          $releaseTag = "hotfix/$branchOnly"
+          $releaseTag = "edge/$branchOnly"
           $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
           Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
           Write-Host -Object "##$vstsCommandString"
