@@ -73,10 +73,10 @@ parts:
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
       echo "added new symlinks"
       find $SNAPCRAFT_PART_INSTALL -type l -ls
-      echo "fixed symlinks"
       echo "checking for targets"
       if [[ -e "$SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0" ]]; then find $SNAPCRAFT_PART_INSTALL -iname libcrypto.so.*  -ls; fi
       if [[ -e "$SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0" ]]; then find $SNAPCRAFT_PART_INSTALL -iname libssl.so.*  -ls; fi
+      echo "fixed symlinks"
       thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
       echo "building third party notices file - $thirdPartyNoticeFile"
       cat thirdPartyNoticeHeader.txt > $thirdPartyNoticeFile
@@ -96,6 +96,8 @@ parts:
       - libssl1.1
       - zlib1g
       - libc6
+      - libgcc1
+      - libstdc++6
     build-packages:
       - curl
       - jq
