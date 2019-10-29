@@ -95,6 +95,7 @@ parts:
       - libssl1.0.0
       - libssl1.1
       - zlib1g
+      - libc6
     build-packages:
       - curl
       - jq
