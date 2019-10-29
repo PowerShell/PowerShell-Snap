@@ -7,10 +7,10 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
 
-  displayName: Push to Store2
+  displayName: Push to Store
 
   variables:
-    ReleaseTag: hotfix/default
+    ReleaseTag: edge/default
 
   dependsOn:
     ${{ parameters.parentJobs }}
