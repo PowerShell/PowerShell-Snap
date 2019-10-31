@@ -79,8 +79,8 @@ parts:
       echo "added new symlinks"
       find $SNAPCRAFT_PART_INSTALL -type l -ls
       echo "checking for targets"
-      if [[ -e "$SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0" ]]; then find $SNAPCRAFT_PART_INSTALL -iname libcrypto.so.*  -ls; fi
-      if [[ -e "$SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0" ]]; then find $SNAPCRAFT_PART_INSTALL -iname libssl.so.*  -ls; fi
+      find $SNAPCRAFT_PART_INSTALL -iname libcrypto.so.*  -ls
+      find $SNAPCRAFT_PART_INSTALL -iname libssl.so.*  -ls
       echo "fixed symlinks"
       thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
       echo "building third party notices file - $thirdPartyNoticeFile"
