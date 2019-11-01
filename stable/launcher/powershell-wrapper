@@ -5,7 +5,4 @@
 # Create $XDG_RUNTIME_DIR if it doesn't exist
 [ -n "$XDG_RUNTIME_DIR" ] && mkdir -p $XDG_RUNTIME_DIR -m 700
 
-# make sure DOTNET loads the ICU that we ship
-export CLR_ICU_VERSION_OVERRIDE=60.2
-
 exec "$SNAP/opt/powershell/pwsh" "$@"
