@@ -19,6 +19,9 @@ confinement: classic
 apps:
   powershell-preview:
     command: bin/powershell-wrapper
+    environment:
+      POWERSHELL_DISTRIBUTION_CHANNEL: PSSnap
+      CLR_ICU_VERSION_OVERRIDE: 60.2
 
 parts:
     # A wrapper script

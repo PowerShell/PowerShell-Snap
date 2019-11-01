@@ -6,8 +6,4 @@
 # || true causes bash to ignore errors
 [ -n "$XDG_RUNTIME_DIR" ] && mkdir -p $XDG_RUNTIME_DIR -m 700 || true
 
-export POWERSHELL_DISTRIBUTION_CHANNEL=PSSnap
-# make sure DOTNET loads the ICU that we ship
-export CLR_ICU_VERSION_OVERRIDE=60.2
-
 exec "$SNAP/opt/powershell/pwsh" "$@"
