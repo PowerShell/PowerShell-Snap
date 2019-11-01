@@ -19,6 +19,9 @@ confinement: classic
 apps:
   powershell-preview:
     command: bin/powershell-wrapper
+    environment:
+      POWERSHELL_DISTRIBUTION_CHANNEL: PSSnap
+      CLR_ICU_VERSION_OVERRIDE: 60.2
 
 parts:
     # A wrapper script
@@ -63,6 +66,11 @@ parts:
       curl -L -o thirdPartyNoticeHeader.txt https://raw.githubusercontent.com/PowerShell/PowerShell-Snap/master/assets/thirdPartyNoticeHeader.txt
       mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
       tar zxf powershell.tar.gz -C $SNAPCRAFT_PART_INSTALL/opt/powershell
+      echo 'updating rpath...'
+      patchelf --force-rpath --set-rpath '$ORIGIN/netcoredeps:$ORIGIN/../../usr/lib/x86_64-linux-gnu' $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      echo 'new rpath'
+      patchelf --print-rpath $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      echo 'fixed rpath'
       chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo "fixing symlinks"
       find $SNAPCRAFT_PART_INSTALL -type l -ls
@@ -73,10 +81,10 @@ parts:
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
       echo "added new symlinks"
       find $SNAPCRAFT_PART_INSTALL -type l -ls
-      echo "fixed symlinks"
       echo "checking for targets"
-      if [[ -e "$SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0" ]]; then find $SNAPCRAFT_PART_INSTALL -iname libcrypto.so.*  -ls; fi
-      if [[ -e "$SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0" ]]; then find $SNAPCRAFT_PART_INSTALL -iname libssl.so.*  -ls; fi
+      find $SNAPCRAFT_PART_INSTALL -iname libcrypto.so.*  -ls
+      find $SNAPCRAFT_PART_INSTALL -iname libssl.so.*  -ls
+      echo "fixed symlinks"
       thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
       echo "building third party notices file - $thirdPartyNoticeFile"
       cat thirdPartyNoticeHeader.txt > $thirdPartyNoticeFile
@@ -96,6 +104,9 @@ parts:
       - libssl1.1
       - zlib1g
       - libc6
+      - libgcc1
+      - libstdc++6
     build-packages:
       - curl
       - jq
+      - patchelf

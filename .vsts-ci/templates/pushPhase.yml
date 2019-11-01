@@ -46,8 +46,13 @@ jobs:
     displayName: Set ReleaseTag Variable
 
   - powershell: |
-      sudo apt-get update
-      sudo apt-get install -y snapcraft
+        sudo chown root:root /
+    displayName: 'Make sure root owns root'
+    condition: succeeded()
+
+  - powershell: |
+        sudo snap install snapcraft --classic
+    condition: succeeded()
     displayName: 'Install snapcraft'
 
   - powershell: |

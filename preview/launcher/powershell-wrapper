@@ -6,6 +6,4 @@
 # || true causes bash to ignore errors
 [ -n "$XDG_RUNTIME_DIR" ] && mkdir -p $XDG_RUNTIME_DIR -m 700 || true
 
-export POWERSHELL_DISTRIBUTION_CHANNEL=PSSnap
-
 exec "$SNAP/opt/powershell/pwsh" "$@"
