@@ -60,6 +60,11 @@ parts:
       curl -L -o thirdPartyNoticeHeader.txt https://raw.githubusercontent.com/PowerShell/PowerShell-Snap/master/assets/thirdPartyNoticeHeader.txt
       mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
       tar zxf powershell.tar.gz -C $SNAPCRAFT_PART_INSTALL/opt/powershell
+      echo 'updating rpath...'
+      patchelf --force-rpath --set-rpath '$ORIGIN/netcoredeps:$ORIGIN/../../usr/lib/x86_64-linux-gnu' $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      echo 'new rpath'
+      patchelf --print-rpath $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      echo 'fixed rpath'
       chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
       echo "building third party notices file - $thirdPartyNoticeFile"
@@ -81,3 +86,4 @@ parts:
     build-packages:
       - curl
       - jq
+      - patchelf

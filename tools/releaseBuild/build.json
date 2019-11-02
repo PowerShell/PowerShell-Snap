@@ -2,7 +2,7 @@
   "Windows": [],
   "Linux": [
     {
-      "Name": "powershell-snap",
+      "Name": "powershell-snap-stable",
       "RepoDestinationPath": "/PowerShell",
       "BuildCommand": "/powershell-snap.sh -location _RepoDestinationPath_ -destination _DockerVolume_ -ReleaseTag _ReleaseTag_",
       "AdditionalContextFiles": [

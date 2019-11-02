@@ -20,12 +20,9 @@ jobs:
     displayName: Get Latest ${{ parameters.channel }} Release Tag
     condition: and(succeeded(), not(startsWith(variables['releaseTag'], 'v')))
 
-  - task: PowerShell@2
+  - powershell: |
+      ./tools/releaseBuild/vstsbuild.ps1 -ReleaseTag $(releaseTag) -Name powershell-snap-${{ parameters.channel }}
     displayName: Build snap ${{ parameters.channel }}
-    inputs:
-      targetType: filePath
-      filePath: ./tools/releaseBuild/vstsbuild.ps1
-      arguments: -ReleaseTag $(releaseTag)
     condition: and(succeeded(), ne(variables['${{ parameters.channel }}'],'no'))
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
