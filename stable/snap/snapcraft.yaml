@@ -86,3 +86,4 @@ parts:
     build-packages:
       - curl
       - jq
+      - patchelf
