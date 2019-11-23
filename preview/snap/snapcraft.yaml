@@ -47,7 +47,7 @@ parts:
         version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
       fi
       snapcraftctl set-version "$version"
-      snapcraftctl set-grade "devel"
+      snapcraftctl set-grade "stable"
     override-build: |
       file="./version.txt"
       if [ -f "$file" ]
