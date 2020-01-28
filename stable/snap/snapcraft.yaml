@@ -66,6 +66,19 @@ parts:
       patchelf --print-rpath $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo 'fixed rpath'
       chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      echo "fixing symlinks"
+      find $SNAPCRAFT_PART_INSTALL -type l -ls
+      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
+      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
+      echo "removed old symlinks"
+      ln -sfn ../../usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
+      ln -sfn ../../usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
+      echo "added new symlinks"
+      find $SNAPCRAFT_PART_INSTALL -type l -ls
+      echo "checking for targets"
+      find $SNAPCRAFT_PART_INSTALL -iname libcrypto.so.*  -ls
+      find $SNAPCRAFT_PART_INSTALL -iname libssl.so.*  -ls
+      echo "fixed symlinks"
       thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
       echo "building third party notices file - $thirdPartyNoticeFile"
       cat thirdPartyNoticeHeader.txt > $thirdPartyNoticeFile
