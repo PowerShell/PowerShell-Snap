@@ -4,7 +4,7 @@ parameters:
   channel: stable
 
 jobs:
-- job: push
+- job: push_${{ parameters.channel }}
   pool:
     vmImage: ${{ parameters.vmImage }}
 
