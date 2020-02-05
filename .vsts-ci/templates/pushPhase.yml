@@ -8,7 +8,7 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
 
-  displayName: Push to Store
+  displayName: Push ${{ parameters.channel }} to Store
 
   variables:
     ReleaseTag: edge/default
@@ -68,20 +68,17 @@ jobs:
     displayName: 'snapcraft login'
 
   - powershell: |
-      $tracks = @('latest')
+      $track = 'latest'
       if('${{ parameters.channel }}' -eq 'stable')
       {
-        $tracks += 'lts'
+        $track = 'lts'
       }
 
       $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
 
       foreach($snap in $snaps)
       {
-        foreach($track in $tracks)
-        {
-          snapcraft push --release "$track/$(ReleaseTag)" $snap
-        }
+        snapcraft push --release "$track/$(ReleaseTag)" $snap
       }
     displayName: 'snapcraft push'
 
