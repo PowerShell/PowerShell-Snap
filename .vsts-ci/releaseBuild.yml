@@ -25,6 +25,13 @@ jobs:
 - template: ./templates/pushPhase.yml
   parameters:
     parentJobs:
-      - build_stable
       - build_preview
       - virus_scan
+    channel: preview
+
+- template: ./templates/pushPhase.yml
+  parameters:
+    parentJobs:
+      - build_stable
+      - virus_scan
+    channel: stable

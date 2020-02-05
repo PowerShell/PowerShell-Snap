@@ -1,6 +1,7 @@
 parameters:
   vmImage: 'ubuntu-16.04'
   parentJobs: []
+  channel: stable
 
 jobs:
 - job: push
@@ -21,15 +22,18 @@ jobs:
     inputs:
       downloadType: specific
       itemPattern: '**/*.snap'
+      artifactName: ${{ parameters.channel }}
 
   - powershell: |
       [string]$Branch=$env:BUILD_SOURCEBRANCH
       $branchOnly = $Branch -replace '^refs/heads/';
       $branchOnly = $branchOnly -replace '[_\-]'
+
       if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
       {
           Write-verbose "release branch:" -verbose
-          $releaseTag = 'edge'
+          $generatedBranch = (get-date).ToString('yyyyMMddHH')
+          $releaseTag = "edge/$generatedBranch"
           $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
           Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
           Write-Host -Object "##$vstsCommandString"
@@ -64,11 +68,20 @@ jobs:
     displayName: 'snapcraft login'
 
   - powershell: |
+      $tracks = @('latest')
+      if('${{ parameters.channel }}' -eq 'stable')
+      {
+        $tracks += 'lts'
+      }
+
       $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
 
       foreach($snap in $snaps)
       {
-        snapcraft push --release $(ReleaseTag) $snap
+        foreach($track in $tracks)
+        {
+          snapcraft push --release "$track/$(ReleaseTag)" $snap
+        }
       }
     displayName: 'snapcraft push'
 
