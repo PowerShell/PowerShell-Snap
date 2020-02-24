@@ -23,7 +23,7 @@ jobs:
     inputs:
       downloadType: single
       itemPattern: '**/*.snap'
-      artifactName: $(channel}
+      artifactName: $(channel)
 
   - powershell: |
       $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
