@@ -1,0 +1,114 @@
+name: powershell
+
+icon: assets/icon.png
+
+grade: stable
+
+adopt-info: powershell
+base: core18
+summary: PowerShell for every system!
+description: |
+  PowerShell is an automation and configuration management platform.
+  It consists of a cross-platform (Windows, Linux, and macOS)
+  command-line shell and associated scripting language.
+
+  See https://docs.microsoft.com/en-us/powershell/scripting/powershell-core-support for support details.
+
+  This is the LTS Channel package.
+
+confinement: classic
+
+apps:
+  powershell:
+    command: bin/powershell-wrapper
+    environment:
+      POWERSHELL_DISTRIBUTION_CHANNEL: PSSnap
+      CLR_ICU_VERSION_OVERRIDE: 60.2
+
+parts:
+    # A wrapper script
+  launchers:
+      plugin: dump
+      source: .
+      organize:
+          launcher/powershell-wrapper: bin/powershell-wrapper
+      filesets:
+          wrapper: [bin/powershell-wrapper]
+      stage: [$wrapper]
+      prime: [$wrapper]
+  powershell:
+    after: [launchers]
+    plugin: nil
+    override-pull: |
+      snapcraftctl pull
+      file="./version.txt"
+      if [ -f "$file" ]
+      then
+        version=$(cat $file)
+      else
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
+      fi
+      snapcraftctl set-version "$version"
+      snapcraftctl set-grade "stable"
+    override-build: |
+      file="./version.txt"
+      if [ -f "$file" ]
+      then
+        echo "using version file"
+        version=$(cat $file)
+      else
+        echo "getting latest version from GitHub"
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
+        echo "Writing version to file"
+        echo $version > $file
+      fi
+      echo "getting powershell $version"
+      curl -L -o powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v$version/powershell-$version-linux-x64.tar.gz
+      echo "getting Third Party Notice Header"
+      curl -L -o thirdPartyNoticeHeader.txt https://raw.githubusercontent.com/PowerShell/PowerShell-Snap/master/assets/thirdPartyNoticeHeader.txt
+      mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
+      tar zxf powershell.tar.gz -C $SNAPCRAFT_PART_INSTALL/opt/powershell
+      echo 'updating rpath...'
+      patchelf --force-rpath --set-rpath '$ORIGIN/netcoredeps:$ORIGIN/../../usr/lib/x86_64-linux-gnu' $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      echo 'new rpath'
+      patchelf --print-rpath $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      echo 'fixed rpath'
+      chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      echo "fixing symlinks"
+      find $SNAPCRAFT_PART_INSTALL -type l -ls
+      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
+      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
+      echo "removed old symlinks"
+      ln -sfn ../../usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
+      ln -sfn ../../usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
+      echo "added new symlinks"
+      find $SNAPCRAFT_PART_INSTALL -type l -ls
+      echo "checking for targets"
+      find $SNAPCRAFT_PART_INSTALL -iname libcrypto.so.*  -ls
+      find $SNAPCRAFT_PART_INSTALL -iname libssl.so.*  -ls
+      echo "fixed symlinks"
+      thirdPartyNoticeFile="$SNAPCRAFT_PART_INSTALL/thirdPartyNotices.txt"
+      echo "building third party notices file - $thirdPartyNoticeFile"
+      cat thirdPartyNoticeHeader.txt > $thirdPartyNoticeFile
+      find $SNAPCRAFT_PART_INSTALL -type f -name 'copyright' -print | while read filename; do
+        libname=$(dirname $filename | sed 's,^\(.*/\)\?\([^/]*\),\2,')
+        echo ''
+        echo '---------------------------------------------'
+        echo "Package - $libname"
+        echo '---------------------------------------------'
+        cat "$filename"
+      done >> $thirdPartyNoticeFile
+      echo "Done building third party notices file - $thirdPartyNoticeFile"
+    stage-packages:
+      - libicu60
+      - liblttng-ust0
+      - libssl1.0.0
+      - libssl1.1
+      - zlib1g
+      - libc6
+      - libgcc1
+      - libstdc++6
+    build-packages:
+      - curl
+      - jq
+      - patchelf

@@ -69,7 +69,7 @@ jobs:
 
   - powershell: |
       $track = 'latest'
-      if('${{ parameters.channel }}' -eq 'stable')
+      if('${{ parameters.channel }}' -eq 'lts')
       {
         $track = 'lts'
       }

@@ -14,7 +14,19 @@ jobs:
     displayName: 'Capture Environment'
 
   - powershell: |
-      $releaseTag = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | Select-Object -ExpandProperty ${{ parameters.channel }}ReleaseTag
+      $releaseTagName = switch('${{ parameters.channel }}') {
+        'stable' {
+          'StableReleaseTag'
+        }
+        'preview' {
+          'PreviewReleaseTag'
+        }
+        default {
+          'PreviewReleaseTag'
+        }
+      }
+      Write-Host "releaseTagName: $releaseTagName"
+      $releaseTag = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | Select-Object -ExpandProperty $releaseTagName
       Write-Host "$releaseTag"
       Write-Host "##vso[task.setvariable variable=releaseTag;]$releaseTag"
     displayName: Get Latest ${{ parameters.channel }} Release Tag

@@ -1,0 +1,8 @@
+
+[Desktop Entry]
+Name=PowerShell Preview
+Exec=powershell-preview
+Type=Application
+Terminal=true
+Categories=ConsoleOnly;System
+Icon=${SNAP}/meta/gui/icon.png

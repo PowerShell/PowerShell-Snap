@@ -1,3 +1,4 @@
+[cmdletbinding(DefaultParameterSetName='default')]
 # PowerShell Script to build and package PowerShell from specified form and branch
 # Script is intented to use in Docker containers
 # Ensure PowerShell is available in the provided image
@@ -12,13 +13,19 @@ param (
     [ValidateNotNullOrEmpty()]
     [string]$ReleaseTag,
 
-    [switch]$Preview
+    [parameter(parmaetersetName='preview',Mandatory)]
+    [switch]$Preview,
+
+    [parameter(parmaetersetName='lts',Mandatory)]
+    [switch]$LTS
 )
 
 $directory = 'stable'
-if($Preview.IsPresent)
-{
-    $directory='preview'
+if ($Preview.IsPresent) {
+    $directory = 'preview'
+}
+elseif ($LTS.IsPresent) {
+    $directory = 'lts'
 }
 
 $ErrorActionPreference = 'Stop'
@@ -30,16 +37,16 @@ if ($ReleaseTag)
 
 Push-Location
 try {
-    Write-Verbose "snapcraft version $(snapcraft --version)" -Verbose    
+    Write-Verbose "snapcraft version $(snapcraft --version)" -Verbose
     Set-Location (Join-Path -Path $location -ChildPath $directory)
     Write-Verbose -message "building $pwd" -Verbose
-    if($ReleaseTag)
-    {
+    if ($ReleaseTag) {
         $version = $ReleaseTag -Replace '^v'
         $version | out-file -filePath './version.txt' -encoding ascii
         Write-Verbose "verify version..." -Verbose
         cat ./version.txt
     }
+
     Write-Verbose "building snap..." -Verbose
     snapcraft snap
 }

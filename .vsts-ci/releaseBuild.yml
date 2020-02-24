@@ -16,6 +16,11 @@ jobs:
     channel: preview
     vmImage: ubuntu-18.04
 
+- template: ./templates/releaseBuildPhase.yml
+  parameters:
+    channel: lts
+    vmImage: ubuntu-18.04
+
 - template: ./templates/virusScanPhase.yml
   parameters:
     parentJobs:
@@ -35,3 +40,10 @@ jobs:
       - build_stable
       - virus_scan
     channel: stable
+
+- template: ./templates/pushPhase.yml
+  parameters:
+    parentJobs:
+      - build_stable
+      - virus_scan
+    channel: lts
