@@ -26,6 +26,15 @@ jobs:
       artifactName: $(channel}
 
   - powershell: |
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+      if($snaps.Count -gt 1)
+      {
+        $snaps | out-string -width 100 | Write-Verbose -verbose
+        Write-Error "***More than one snap found***" -errorAction stop
+      }
+    displayName: Verify that only one snap was downloaded
+
+  - powershell: |
       [string]$Branch=$env:BUILD_SOURCEBRANCH
       $branchOnly = $Branch -replace '^refs/heads/';
       $branchOnly = $branchOnly -replace '[_\-]'
