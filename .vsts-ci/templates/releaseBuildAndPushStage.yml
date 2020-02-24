@@ -1,0 +1,22 @@
+parameters:
+  channel: ''
+  vmImage: ubuntu-16.04
+
+stages:
+- stage: build_and_push_${{ parameters.channel }}
+  displayName: Build and Push - ${{ parameters.channel }}
+  dependsOn: []
+  jobs:
+  - template: ./releaseBuildPhase.yml
+    parameters:
+      matrix:
+        ${{ parameters.channel }}:
+          channel: ${{ parameters.channel }}
+      vmImage: ${{ parameters.vmImage }}
+
+  - template: ./pushPhase.yml
+    parameters:
+      matrix:
+        ${{ parameters.channel }}:
+          channel: ${{ parameters.channel }}
+      parentJobs: build
