@@ -1,6 +1,5 @@
 parameters:
   vmImage: 'ubuntu-16.04'
-  channel: ''
   matrix:
 
 jobs:
@@ -11,8 +10,6 @@ jobs:
       ${{ parameters.matrix }}
   pool:
     vmImage: ${{ parameters.vmImage }}
-
-  displayName: Build $(channel)
 
   steps:
   - powershell: 'dir env:'

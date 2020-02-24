@@ -1,14 +1,15 @@
 parameters:
   vmImage: 'ubuntu-16.04'
   parentJobs: []
-  channel: stable
+  matrix:
 
 jobs:
-- job: push_${{ parameters.channel }}
+- job: push
+  strategy:
+    matrix:
+      ${{ parameters.matrix }}
   pool:
     vmImage: ${{ parameters.vmImage }}
-
-  displayName: Push ${{ parameters.channel }} to Store
 
   variables:
     ReleaseTag: edge/default
@@ -20,9 +21,9 @@ jobs:
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts'
     inputs:
-      downloadType: specific
+      downloadType: single
       itemPattern: '**/*.snap'
-      artifactName: ${{ parameters.channel }}
+      artifactName: $(channel}
 
   - powershell: |
       [string]$Branch=$env:BUILD_SOURCEBRANCH
@@ -69,7 +70,7 @@ jobs:
 
   - powershell: |
       $track = 'latest'
-      if('${{ parameters.channel }}' -eq 'lts')
+      if('$(channel}' -eq 'lts')
       {
         $track = 'lts'
       }

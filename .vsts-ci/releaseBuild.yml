@@ -22,15 +22,13 @@ stages:
   jobs:
   - template: ./templates/pushPhase.yml
     parameters:
-      channel: preview
-
-  - template: ./templates/pushPhase.yml
-    parameters:
-      channel: stable
-
-  - template: ./templates/pushPhase.yml
-    parameters:
-      channel: lts
+      matrix:
+        stable:
+          channel: stable
+        preview:
+          channel: preview
+        lts:
+          channel: lts
 
 - stage: virus_scan
   jobs:
