@@ -21,5 +21,9 @@ stages:
     vmImage: ubuntu-18.04
 
 - stage: virus_scan
+  dependsOn:
+    - build_and_push_stable
+    - build_and_push_preview
+    - build_and_push_lts
   jobs:
   - template: ./templates/virusScanPhase.yml
