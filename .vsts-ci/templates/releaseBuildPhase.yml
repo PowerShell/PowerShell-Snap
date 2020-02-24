@@ -1,20 +1,25 @@
 parameters:
   vmImage: 'ubuntu-16.04'
   channel: ''
+  matrix:
 
 jobs:
-- job: build_${{ parameters.channel }}
+
+- job: build
+  strategy:
+    matrix:
+      ${{ parameters.matrix }}
   pool:
     vmImage: ${{ parameters.vmImage }}
 
-  displayName: Build ${{ parameters.channel }}
+  displayName: Build $(channel)
 
   steps:
   - powershell: 'dir env:'
     displayName: 'Capture Environment'
 
   - powershell: |
-      $releaseTagName = switch('${{ parameters.channel }}') {
+      $releaseTagName = switch('$(channel)') {
         'stable' {
           'StableReleaseTag'
         }
@@ -29,13 +34,13 @@ jobs:
       $releaseTag = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | Select-Object -ExpandProperty $releaseTagName
       Write-Host "$releaseTag"
       Write-Host "##vso[task.setvariable variable=releaseTag;]$releaseTag"
-    displayName: Get Latest ${{ parameters.channel }} Release Tag
+    displayName: Get Latest $(channel) Release Tag
     condition: and(succeeded(), not(startsWith(variables['releaseTag'], 'v')))
 
   - powershell: |
-      ./tools/releaseBuild/vstsbuild.ps1 -ReleaseTag $(releaseTag) -Name powershell-snap-${{ parameters.channel }}
-    displayName: Build snap ${{ parameters.channel }}
-    condition: and(succeeded(), ne(variables['${{ parameters.channel }}'],'no'))
+      ./tools/releaseBuild/vstsbuild.ps1 -ReleaseTag $(releaseTag) -Name powershell-snap-$(channel)
+    displayName: Build snap $(channel)
+    condition: and(succeeded(), ne(variables['$(channel)'],'no'))
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'

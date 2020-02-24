@@ -5,45 +5,33 @@ resources:
 variables:
   POWERSHELL_TELEMETRY_OPTOUT: 1
 
-jobs:
+stages:
+- stage: build
+  jobs:
+  - template: ./templates/releaseBuildPhase.yml
+    parameters:
+      matrix:
+        stable:
+          channel: stable
+        preview:
+          channel: preview
+        lts:
+          channel: lts
 
-- template: ./templates/releaseBuildPhase.yml
-  parameters:
-    channel: stable
+- stage: push
+  jobs:
+  - template: ./templates/pushPhase.yml
+    parameters:
+      channel: preview
 
-- template: ./templates/releaseBuildPhase.yml
-  parameters:
-    channel: preview
-    vmImage: ubuntu-18.04
+  - template: ./templates/pushPhase.yml
+    parameters:
+      channel: stable
 
-- template: ./templates/releaseBuildPhase.yml
-  parameters:
-    channel: lts
-    vmImage: ubuntu-18.04
+  - template: ./templates/pushPhase.yml
+    parameters:
+      channel: lts
 
-- template: ./templates/virusScanPhase.yml
-  parameters:
-    parentJobs:
-      - build_stable
-      - build_preview
-
-- template: ./templates/pushPhase.yml
-  parameters:
-    parentJobs:
-      - build_preview
-      - virus_scan
-    channel: preview
-
-- template: ./templates/pushPhase.yml
-  parameters:
-    parentJobs:
-      - build_stable
-      - virus_scan
-    channel: stable
-
-- template: ./templates/pushPhase.yml
-  parameters:
-    parentJobs:
-      - build_stable
-      - virus_scan
-    channel: lts
+- stage: virus_scan
+  jobs:
+  - template: ./templates/virusScanPhase.yml
