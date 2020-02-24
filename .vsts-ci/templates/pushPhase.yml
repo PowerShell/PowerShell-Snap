@@ -21,9 +21,8 @@ jobs:
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts'
     inputs:
-      downloadType: single
-      itemPattern: '**/*.snap'
-      artifactName: $(channel)
+      downloadType: specific
+      itemPattern: '$(channel)/**/*.snap'
 
   - powershell: |
       $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
