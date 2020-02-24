@@ -13,10 +13,10 @@ param (
     [ValidateNotNullOrEmpty()]
     [string]$ReleaseTag,
 
-    [parameter(parmaetersetName='preview',Mandatory)]
+    [parameter(parametersetName='preview',Mandatory)]
     [switch]$Preview,
 
-    [parameter(parmaetersetName='lts',Mandatory)]
+    [parameter(parametersetName='lts',Mandatory)]
     [switch]$LTS
 )
 
