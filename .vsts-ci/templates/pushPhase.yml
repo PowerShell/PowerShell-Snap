@@ -1,13 +1,15 @@
 parameters:
   vmImage: 'ubuntu-16.04'
   parentJobs: []
+  matrix:
 
 jobs:
 - job: push
+  strategy:
+    matrix:
+      ${{ parameters.matrix }}
   pool:
     vmImage: ${{ parameters.vmImage }}
-
-  displayName: Push to Store
 
   variables:
     ReleaseTag: edge/default
@@ -20,16 +22,27 @@ jobs:
     displayName: 'Download Build Artifacts'
     inputs:
       downloadType: specific
-      itemPattern: '**/*.snap'
+      itemPattern: '$(channel)/**/*.snap'
+
+  - powershell: |
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+      if($snaps.Count -gt 1)
+      {
+        $snaps | out-string -width 100 | Write-Verbose -verbose
+        Write-Error "***More than one snap found***" -errorAction stop
+      }
+    displayName: Verify that only one snap was downloaded
 
   - powershell: |
       [string]$Branch=$env:BUILD_SOURCEBRANCH
       $branchOnly = $Branch -replace '^refs/heads/';
       $branchOnly = $branchOnly -replace '[_\-]'
+
       if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
       {
           Write-verbose "release branch:" -verbose
-          $releaseTag = 'edge'
+          $generatedBranch = (get-date).ToString('yyyyMMddHH')
+          $releaseTag = "edge/$generatedBranch"
           $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
           Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
           Write-Host -Object "##$vstsCommandString"
@@ -64,11 +77,17 @@ jobs:
     displayName: 'snapcraft login'
 
   - powershell: |
+      $track = 'latest'
+      if('$(channel}' -eq 'lts')
+      {
+        $track = 'lts'
+      }
+
       $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
 
       foreach($snap in $snaps)
       {
-        snapcraft push --release $(ReleaseTag) $snap
+        snapcraft push --release "$track/$(ReleaseTag)" $snap
       }
     displayName: 'snapcraft push'
 
