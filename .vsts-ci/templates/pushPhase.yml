@@ -78,7 +78,7 @@ jobs:
 
   - powershell: |
       $track = 'latest'
-      if('$(channel}' -eq 'lts')
+      if('$(channel)' -eq 'lts')
       {
         $track = 'lts'
       }
