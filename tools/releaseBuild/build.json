@@ -12,7 +12,8 @@
       ],
       "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu16.04/Dockerfile",
       "DockerImageName": "ps-snap-ubunutu-16-04",
-      "BinaryBucket": "stable"
+      "BinaryBucket": "stable",
+      "EnableFeature": [ "ArtifactAsFolder" ]
     },
     {
       "Name": "powershell-snap-lts",
@@ -25,7 +26,8 @@
       ],
       "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
       "DockerImageName": "ps-snap-ubunutu-18-04",
-      "BinaryBucket": "lts"
+      "BinaryBucket": "lts",
+      "EnableFeature": [ "ArtifactAsFolder" ]
     },
     {
       "Name": "powershell-snap-preview",
@@ -38,7 +40,8 @@
       ],
       "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
       "DockerImageName": "ps-snap-ubunutu-18-04",
-      "BinaryBucket": "preview"
+      "BinaryBucket": "preview",
+      "EnableFeature": [ "ArtifactAsFolder" ]
     },
     {
       "Name": "powershell-snap-latest",
