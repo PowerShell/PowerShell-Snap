@@ -78,6 +78,8 @@ parts:
       find $SNAPCRAFT_PART_INSTALL -type l -ls
       rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
       rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
+      echo "removing libmi.so, it makes the snap unstable..."
+      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libmi.so
       echo "removed old symlinks"
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
