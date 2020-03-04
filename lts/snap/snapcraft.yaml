@@ -46,7 +46,7 @@ parts:
       then
         version=$(cat $file)
       else
-        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .LTSReleaseTag[0] | sed 's/"//g' | sed 's/v//')
       fi
       snapcraftctl set-version "$version"
       snapcraftctl set-grade "stable"
@@ -58,7 +58,7 @@ parts:
         version=$(cat $file)
       else
         echo "getting latest version from GitHub"
-        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .LTSReleaseTag[0] | sed 's/"//g' | sed 's/v//')
         echo "Writing version to file"
         echo $version > $file
       fi
