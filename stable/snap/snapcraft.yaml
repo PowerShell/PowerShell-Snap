@@ -2,18 +2,10 @@ name: powershell
 
 icon: assets/icon.png
 
-# the version number is not used, but required
-version: 6.0.1
-#base: core
-version-script: |
-  file="./version.txt"
-  if [ -f "$file" ]
-  then
-    cat $file
-  else
-    version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .StableReleaseTag | sed 's/"//g' | sed 's/v//')
-    echo $version
-  fi
+grade: stable
+
+adopt-info: powershell-preview
+base: core18
 summary: PowerShell for every system!
 description: |
   PowerShell is an automation and configuration management platform.
@@ -27,6 +19,9 @@ confinement: classic
 apps:
   powershell:
     command: bin/powershell-wrapper
+    environment:
+      POWERSHELL_DISTRIBUTION_CHANNEL: PSSnap
+      CLR_ICU_VERSION_OVERRIDE: 60.2
 
 parts:
     # A wrapper script
@@ -42,6 +37,17 @@ parts:
   powershell:
     after: [launchers]
     plugin: nil
+    override-pull: |
+      snapcraftctl pull
+      file="./version.txt"
+      if [ -f "$file" ]
+      then
+        version=$(cat $file)
+      else
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
+      fi
+      snapcraftctl set-version "$version"
+      snapcraftctl set-grade "stable"
     override-build: |
       file="./version.txt"
       if [ -f "$file" ]
@@ -92,10 +98,12 @@ parts:
       done >> $thirdPartyNoticeFile
       echo "Done building third party notices file - $thirdPartyNoticeFile"
     stage-packages:
-      - libicu55
+      - libicu60
       - liblttng-ust0
-      - libssl1.0.0
       - zlib1g
+      - libc6
+      - libgcc1
+      - libstdc++6
     build-packages:
       - curl
       - jq
