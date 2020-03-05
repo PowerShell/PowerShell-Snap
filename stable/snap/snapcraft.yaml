@@ -4,7 +4,7 @@ icon: assets/icon.png
 
 grade: stable
 
-adopt-info: powershell-preview
+adopt-info: powershell
 base: core18
 summary: PowerShell for every system!
 description: |
