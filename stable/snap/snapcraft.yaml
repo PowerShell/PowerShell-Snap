@@ -14,6 +14,8 @@ description: |
 
   See https://docs.microsoft.com/en-us/powershell/scripting/powershell-core-support for support details.
 
+  This is the Stable Channel package.
+
 confinement: classic
 
 apps:
@@ -44,7 +46,7 @@ parts:
       then
         version=$(cat $file)
       else
-        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .PreviewReleaseTag | sed 's/"//g' | sed 's/v//')
+        version=$(curl -s 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | jq .StableReleaseTag | sed 's/"//g' | sed 's/v//')
       fi
       snapcraftctl set-version "$version"
       snapcraftctl set-grade "stable"
