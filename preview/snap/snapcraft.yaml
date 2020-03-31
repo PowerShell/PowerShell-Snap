@@ -105,7 +105,6 @@ parts:
       - libicu60
       - liblttng-ust0
       - zlib1g
-      - libc6
       - libgcc1
       - libstdc++6
     build-packages:
