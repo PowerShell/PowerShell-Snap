@@ -67,7 +67,11 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
       tar zxf powershell.tar.gz -C $SNAPCRAFT_PART_INSTALL/opt/powershell
       echo 'updating rpath...'
-      patchelf --force-rpath --set-rpath '$ORIGIN/netcoredeps:$ORIGIN/../../usr/lib/x86_64-linux-gnu' $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      current_rpath="$(patchelf --print-rpath $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh)"
+      append_rpath='$ORIGIN:$ORIGIN/../../usr/lib/x86_64-linux-gnu:$ORIGIN/../../lib/x86_64-linux-gnu'
+      new_rpath="${current_rpath}:${append_rpath}"
+      echo "set rpath: ${new_rpath}"
+      patchelf --force-rpath --set-rpath "${new_rpath}" $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo 'new rpath'
       patchelf --print-rpath $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo 'fixed rpath'
