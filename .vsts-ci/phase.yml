@@ -30,11 +30,6 @@ jobs:
     condition: succeeded()
 
   - powershell: |
-        sudo snap install multipass --classic --beta
-    displayName: Install multipass
-    condition: succeeded()
-
-  - powershell: |
         $channel = '$(SnapChannel)'
         switch($channel)
         {
@@ -55,7 +50,7 @@ jobs:
           }
         }
         Write-Host "Building snap..."
-        snapcraft
+        snapcraft --destructive-mode
         Write-Host "finding snap..."
         $snap = Get-ChildItem "*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
         if(!$snap)
