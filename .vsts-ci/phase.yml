@@ -80,7 +80,7 @@ jobs:
   - powershell: |
         &"$(PS_SNAP_EXEC)" -nologo -c '$psversiontable'
     displayName: 'Test $(SnapChannel) snap'
-    condition: succeeded()
+    condition: and(succeeded(), eq('${{ parameters.test }}','Yes'))
 
   # Uploads any packages as an artifact
   - powershell: |
