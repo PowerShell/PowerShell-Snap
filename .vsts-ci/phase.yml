@@ -1,5 +1,5 @@
 parameters:
-  queue: 	ubuntu-18.04
+  queue: ubuntu-18.04
   snapChannel: 'stable'
   test: Yes
 
