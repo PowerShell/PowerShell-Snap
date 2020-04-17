@@ -1,5 +1,5 @@
 parameters:
-  queue: ubuntu-16.04
+  queue: ubuntu-18.04
   snapChannel: 'stable'
   test: Yes
 
@@ -25,17 +25,22 @@ jobs:
     displayName: 'Capture Environment'
 
   - powershell: |
+        sudo snap install snapcraft --classic
+    displayName: Install snapcraft
+    condition: succeeded()
+
+  - powershell: |
         $channel = '$(SnapChannel)'
         switch($channel)
         {
           'stable' {
-            $buildName = 'powershell-snap-latest'
+            cd stable
             $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
             Write-Host $message
             Write-Host "##$message"
           }
           'preview' {
-            $buildName = 'powershell-snap-preview-latest'
+            cd preview
             $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell-preview"
             Write-Host $message
             Write-Host "##$message"
@@ -45,9 +50,11 @@ jobs:
           }
         }
         Write-Host "Building snap..."
-        ./tools/releaseBuild/vstsbuild.ps1 -Name $buildName
+        # destructive-mode leaves files and packages on the machine 
+        # This is okay because Azure DevOps Hosted machines are ephemeral.
+        snapcraft --destructive-mode
         Write-Host "finding snap..."
-        $snap = Get-ChildItem "$env:AGENT_TEMPDIRECTORY/*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
+        $snap = Get-ChildItem "*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
         if(!$snap)
         {
           throw "snap build failed"
@@ -69,14 +76,8 @@ jobs:
 
   - powershell: |
         &"$(PS_SNAP_EXEC)" -nologo -c '$psversiontable'
-    displayName: 'Test $(PS_SNAP_EXEC) snap'
+    displayName: 'Test $(SnapChannel) snap'
     condition: and(succeeded(), eq('${{ parameters.test }}','Yes'))
-
-  - powershell: |
-        $env:COREHOST_TRACE=1
-        /snap/$(PS_SNAP_EXEC)/current/opt/powershell/pwsh -nologo -c '$psversiontable'
-    displayName: 'Alternative Test $(PS_SNAP_EXEC) snap'
-    condition: and(succeeded(), ne('${{ parameters.test }}','Yes'))
 
   # Uploads any packages as an artifact
   - powershell: |
