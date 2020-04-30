@@ -27,8 +27,11 @@ sudo snap install powershell-preview --classic
 
 ## Known Issues
 
-- Some people have reported that the auto-alias of `powershell-preview` to `pwsh-preview` is not working.  I have reported this to Canonical.
-  - See [Alias Troubleshooting](#alias-troubleshooting)
+- Ubuntu 20.04 is not working with the `powershell` package.
+  - The work around is to use the `powershell-preview` package.
+- Some native libaries cause incompatible libarires to be loaded.  Because the snap file system the readonly, there is no real workaround for this.
+  - `libmi` always causes for this type of issue and is responsible for:
+    - PowerShell remoting commands that don't invole `-Hostname`
 
 ## Alias Troubleshooting
 
