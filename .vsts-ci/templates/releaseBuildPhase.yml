@@ -43,8 +43,7 @@ jobs:
           'PreviewReleaseTag'
         }
         default {
-          cd preview
-          'PreviewReleaseTag'
+          throw "Unknown channel: '$(channel)'"
         }
       }
       Write-Host "releaseTagName: $releaseTagName"
