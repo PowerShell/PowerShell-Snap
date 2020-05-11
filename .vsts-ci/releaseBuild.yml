@@ -13,12 +13,10 @@ stages:
 - template: ./templates/releaseBuildAndPushStage.yml
   parameters:
     channel: preview
-    vmImage: ubuntu-18.04
 
 - template: ./templates/releaseBuildAndPushStage.yml
   parameters:
     channel: lts
-    vmImage: ubuntu-18.04
 
 - stage: virus_scan
   dependsOn:
