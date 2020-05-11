@@ -25,7 +25,7 @@ jobs:
     displayName: 'Capture Environment'
 
   - powershell: |
-        $channel = (get-content ./snapcraftConfig.json | ConvertFrom-Json).channel
+        $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
         Write-Verbose -Verbose -Message "using Channel $channel"
         sudo snap install snapcraft --classic "--channel=$channel"
     displayName: Install snapcraft
