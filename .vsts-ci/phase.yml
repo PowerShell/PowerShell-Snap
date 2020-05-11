@@ -25,7 +25,9 @@ jobs:
     displayName: 'Capture Environment'
 
   - powershell: |
-        sudo snap install snapcraft --classic
+        $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
+        Write-Verbose -Verbose -Message "using Channel $channel"
+        sudo snap install snapcraft --classic "--channel=$channel"
     displayName: Install snapcraft
     condition: succeeded()
 
@@ -50,7 +52,7 @@ jobs:
           }
         }
         Write-Host "Building snap..."
-        # destructive-mode leaves files and packages on the machine 
+        # destructive-mode leaves files and packages on the machine
         # This is okay because Azure DevOps Hosted machines are ephemeral.
         snapcraft --destructive-mode
         Write-Host "finding snap..."

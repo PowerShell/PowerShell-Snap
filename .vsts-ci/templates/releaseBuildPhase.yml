@@ -1,5 +1,5 @@
 parameters:
-  vmImage: 'ubuntu-16.04'
+  vmImage: 'ubuntu-18.04'
   matrix:
 
 jobs:
@@ -12,32 +12,88 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
 
   steps:
+
+  - powershell: |
+        sudo chown root:root /
+    displayName: 'Make sure root owns root'
+    condition: succeeded()
+
   - powershell: 'dir env:'
     displayName: 'Capture Environment'
 
   - powershell: |
+        $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
+        Write-Verbose -Verbose -Message "using Channel $channel"
+        sudo snap install snapcraft --classic "--channel=$channel"
+    displayName: Install snapcraft
+    condition: succeeded()
+
+  - powershell: |
       $releaseTagName = switch('$(channel)') {
         'stable' {
+          cd stable
           'StableReleaseTag'
         }
+        'lts' {
+          cd lts
+          'LtsReleaseTag'
+        }
         'preview' {
+          cd preview
           'PreviewReleaseTag'
         }
         default {
-          'PreviewReleaseTag'
+          throw "Unknown channel: '$(channel)'"
         }
       }
       Write-Host "releaseTagName: $releaseTagName"
-      $releaseTag = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | Select-Object -ExpandProperty $releaseTagName
+      $releaseTag = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | Select-Object -ExpandProperty $releaseTagName -First 1
       Write-Host "$releaseTag"
       Write-Host "##vso[task.setvariable variable=releaseTag;]$releaseTag"
     displayName: Get Latest $(channel) Release Tag
     condition: and(succeeded(), not(startsWith(variables['releaseTag'], 'v')))
 
   - powershell: |
-      ./tools/releaseBuild/vstsbuild.ps1 -ReleaseTag $(releaseTag) -Name powershell-snap-$(channel)
+      switch('$(channel)') {
+        'stable' {
+          cd stable
+        }
+        'lts' {
+          cd lts
+        }
+        'preview' {
+          cd preview
+        }
+        default {
+          throw "Unknown channel: '$(channel)'"
+        }
+      }
+
+      Write-Host "Building snap..."
+      # destructive-mode leaves files and packages on the machine
+      # This is okay because Azure DevOps Hosted machines are ephemeral.
+      snapcraft --destructive-mode
+      Write-Host "finding snap..."
+      $snap = Get-ChildItem "*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
+      if(!$snap)
+      {
+        throw "snap build failed"
+      }
+      else
+      {
+        $message = "vso[task.setvariable variable=PS_SNAP_PATH;]$snap"
+        Write-Host $message
+        Write-Host "##$message"
+      }
     displayName: Build snap $(channel)
     condition: and(succeeded(), ne(variables['$(channel)'],'no'))
+
+  # Uploads any packages as an artifact
+  - powershell: |
+      Write-Host "##vso[artifact.upload containerfolder=$(channel);artifactname=$(channel)]$(PS_SNAP_PATH)"
+    displayName: Publish Artifact - $(channel)
+    condition: succeeded()
+    continueOnError: true
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'

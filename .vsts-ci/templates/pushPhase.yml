@@ -64,7 +64,9 @@ jobs:
     condition: succeeded()
 
   - powershell: |
-        sudo snap install snapcraft --classic
+        $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
+        Write-Verbose -Verbose -Message "using Channel $channel"
+        sudo snap install snapcraft --classic "--channel=$channel"
     condition: succeeded()
     displayName: 'Install snapcraft'
 
@@ -98,5 +100,4 @@ jobs:
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'
-
 
