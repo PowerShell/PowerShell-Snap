@@ -27,7 +27,7 @@ jobs:
   - powershell: |
         $channel = (get-content ./snapcraftConfig.json | ConvertFrom-Json).channel
         Write-Verbose -Verbose -Message "using Channel $channel"
-        sudo snap install snapcraft --classic "--channel=$channel"sudo snap install snapcraft --classic
+        sudo snap install snapcraft --classic "--channel=$channel"
     displayName: Install snapcraft
     condition: succeeded()
 
