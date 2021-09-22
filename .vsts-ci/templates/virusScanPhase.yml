@@ -1,7 +1,7 @@
 jobs:
 - job: virus_scan
   pool:
-    name: 'Package ES CodeHub Lab E'
+    name: 'PowerShell1ES'
 
   displayName: Virus Scan
 
