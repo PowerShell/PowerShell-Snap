@@ -19,3 +19,24 @@ jobs:
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'
 
+    # from powershell compliance.yml
+#   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+#     displayName: 'Component Detection'
+#     inputs:
+#       sourceScanPath: '$(Build.SourcesDirectory)'
+#       snapshotForceEnabled: true
+
+    # from powershell compliance.yml
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
+    displayName: 'Run PoliCheck'
+    inputs:
+      targetType: F
+      optionsFC: 0
+      optionsXS: 1
+      optionsPE: '1|2|3|4'
+      optionsHMENABLE: 0
+      optionsRulesDBPath: '$(Build.SourcesDirectory)\tools\terms\PowerShell-Terms-Rules.mdb'
+      optionsUEPath: $(Build.SourcesDirectory)\tools\terms\TermsExclusion.xml
+    continueOnError: true
+
+
