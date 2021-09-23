@@ -115,6 +115,7 @@ parts:
       - zlib1g
       - libgcc1
       - libstdc++6
+      - libssl1.0.0
     build-packages:
       - curl
       - jq
