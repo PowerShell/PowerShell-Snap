@@ -10,9 +10,24 @@
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
         "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
-      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu16.04/Dockerfile",
-      "DockerImageName": "ps-snap-ubunutu-16-04",
-      "BinaryBucket": "release"
+      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
+      "DockerImageName": "ps-snap-ubunutu-18-04",
+      "BinaryBucket": "stable",
+      "EnableFeature": [ "ArtifactAsFolder" ]
+    },
+    {
+      "Name": "powershell-snap-lts",
+      "RepoDestinationPath": "/PowerShell",
+      "BuildCommand": "/powershell-snap.sh -location _RepoDestinationPath_ -destination _DockerVolume_ -ReleaseTag _ReleaseTag_ -LTS",
+      "AdditionalContextFiles": [
+        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.sh",
+        "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
+        "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
+      ],
+      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
+      "DockerImageName": "ps-snap-ubunutu-18-04",
+      "BinaryBucket": "lts",
+      "EnableFeature": [ "ArtifactAsFolder" ]
     },
     {
       "Name": "powershell-snap-preview",
@@ -25,7 +40,8 @@
       ],
       "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
       "DockerImageName": "ps-snap-ubunutu-18-04",
-      "BinaryBucket": "release"
+      "BinaryBucket": "preview",
+      "EnableFeature": [ "ArtifactAsFolder" ]
     },
     {
       "Name": "powershell-snap-latest",
@@ -36,8 +52,8 @@
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
         "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
-      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu16.04/Dockerfile",
-      "DockerImageName": "ps-snap-ubunutu-16-04",
+      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
+      "DockerImageName": "ps-snap-ubunutu-18-04",
       "BinaryBucket": "release"
     },
     {

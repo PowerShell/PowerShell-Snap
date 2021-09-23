@@ -78,16 +78,17 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
       tar zxf powershell.tar.gz -C $SNAPCRAFT_PART_INSTALL/opt/powershell
       echo 'updating rpath...'
-      patchelf --force-rpath --set-rpath '$ORIGIN/netcoredeps:$ORIGIN/../../usr/lib/x86_64-linux-gnu' $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
+      current_rpath="$(patchelf --print-rpath $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh)"
+      append_rpath='$ORIGIN:$ORIGIN/../../usr/lib/x86_64-linux-gnu:$ORIGIN/../../lib/x86_64-linux-gnu'
+      new_rpath="${current_rpath}:${append_rpath}"
+      echo "set rpath: ${new_rpath}"
+      patchelf --force-rpath --set-rpath "${new_rpath}" $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo 'new rpath'
       patchelf --print-rpath $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo 'fixed rpath'
       chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo "fixing symlinks"
       find $SNAPCRAFT_PART_INSTALL -type l -ls
-      rm -f $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
-      rm -f $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
-      echo "removed old symlinks"
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
       echo "added new symlinks"
@@ -111,10 +112,7 @@ parts:
     stage-packages:
       - libicu60
       - liblttng-ust0
-      - libssl1.0.0
-      - libssl1.1
       - zlib1g
-      - libc6
       - libgcc1
       - libstdc++6
     build-packages:
