@@ -85,8 +85,8 @@ parts:
       chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo "fixing symlinks"
       find $SNAPCRAFT_PART_INSTALL -type l -ls
-      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
-      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
+      rm -f $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
+      rm -f $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
       echo "removed old symlinks"
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
