@@ -11,20 +11,27 @@ jobs:
     inputs:
       downloadType: specific
 
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-antimalware.AntiMalware@3
-    displayName: 'Run Virus Scan'
-    inputs:
-      FileDirPath: '$(System.ArtifactsDirectory)'
+#   - task: securedevelopmentteam.vss-secure-development-tools.build-task-antimalware.AntiMalware@3
+#     displayName: 'Run Virus Scan'
+#     inputs:
+#       FileDirPath: '$(System.ArtifactsDirectory)'
+
+  - template: EsrpScan.yml@ComplianceRepo
+    parameters:
+        # the path with the files to scan
+        scanPath: $(System.ArtifactsDirectory)
+        # the minimatch pattern to find the files
+        # https://github.com/isaacs/minimatch#features
+        pattern: |
+          **\*.rpm
+          **\*.deb
+          **\*.tar.gz
+        # The name of the Azure DevOps Service connection you configured for ESRP Malware Scanning.
+        # Defaults to "pwshEsrpScanning".
+        scanningService: 'pwshEsrpScanning'
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'
-
-    # from powershell compliance.yml
-#   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-#     displayName: 'Component Detection'
-#     inputs:
-#       sourceScanPath: '$(Build.SourcesDirectory)'
-#       snapshotForceEnabled: true
 
     # from powershell compliance.yml
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
