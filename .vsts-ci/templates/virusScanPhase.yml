@@ -11,29 +11,18 @@ jobs:
     inputs:
       downloadType: specific
 
-#   - task: securedevelopmentteam.vss-secure-development-tools.build-task-antimalware.AntiMalware@3
-#     displayName: 'Run Virus Scan'
-#     inputs:
-#       FileDirPath: '$(System.ArtifactsDirectory)'
-
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
-        # the path with the files to scan
-        scanPath: $(System.ArtifactsDirectory)
-        # the minimatch pattern to find the files
-        # https://github.com/isaacs/minimatch#features
-        pattern: |
-          **\*.rpm
-          **\*.deb
-          **\*.tar.gz
-        # The name of the Azure DevOps Service connection you configured for ESRP Malware Scanning.
-        # Defaults to "pwshEsrpScanning".
-        scanningService: 'pwshEsrpScanning'
+      scanPath: $(System.ArtifactsDirectory)
+      pattern: |
+        **\*.rpm
+        **\*.deb
+        **\*.tar.gz
+      scanningService: 'pwshEsrpScanning'
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'
 
-    # from powershell compliance.yml
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
     displayName: 'Run PoliCheck'
     inputs:
@@ -42,8 +31,8 @@ jobs:
       optionsXS: 1
       optionsPE: '1|2|3|4'
       optionsHMENABLE: 0
-      optionsRulesDBPath: '$(Build.SourcesDirectory)\tools\terms\PowerShell-Terms-Rules.mdb'
-      optionsUEPath: $(Build.SourcesDirectory)\tools\terms\TermsExclusion.xml
+      optionsRulesDBPath: '$(System.ArtifactsDirectory)\tools\terms\PowerShell-Terms-Rules.mdb'
+      optionsUEPath: $(System.ArtifactsDirectory)\tools\terms\TermsExclusion.xml
     continueOnError: true
 
 
