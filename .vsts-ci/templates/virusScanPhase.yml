@@ -5,19 +5,26 @@ jobs:
 
   displayName: Virus Scan
 
+  variables:
+    - name: repoPath
+      value: $(Agent.BuildDirectory)\PowerShell-Snap
+
   steps:
+  - checkout: self
+      path: $(repoPath)
+  - checkout: ComplianceRepo
+
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts'
     inputs:
       downloadType: specific
+      downloadPath: '$(System.ArtifactsDirectory)'
 
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
       scanPath: $(System.ArtifactsDirectory)
       pattern: |
-        **\*.rpm
-        **\*.deb
-        **\*.tar.gz
+        **\*
       scanningService: 'pwshEsrpScanning'
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
@@ -26,12 +33,11 @@ jobs:
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
     displayName: 'Run PoliCheck'
     inputs:
+      targetArgument: $(repoPath)
       targetType: F
       optionsFC: 0
       optionsXS: 1
       optionsPE: '1|2|3|4'
       optionsHMENABLE: 0
-      optionsRulesDBPath: '$(System.ArtifactsDirectory)\tools\terms\PowerShell-Terms-Rules.mdb'
-      optionsUEPath: $(System.ArtifactsDirectory)\tools\terms\TermsExclusion.xml
     continueOnError: true
 

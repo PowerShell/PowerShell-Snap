@@ -29,11 +29,5 @@ stages:
     - build_and_push_preview
     - build_and_push_lts
   jobs:
-  - job: Virus_Scan_Job
     - template: ./templates/virusScanPhase.yml
-  - job: Compliance_Job
-      pool:
-        name: 'PowerShell1ES'
-      steps:
-      - checkout: self
-      - checkout: ComplianceRepo
+
