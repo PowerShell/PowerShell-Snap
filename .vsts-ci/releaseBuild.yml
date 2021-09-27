@@ -8,7 +8,10 @@ resources:
     name: PowerShell/Compliance
 
 variables:
-  POWERSHELL_TELEMETRY_OPTOUT: 1
+  - name: POWERSHELL_TELEMETRY_OPTOUT
+    value: 1
+  - name: runCodesignValidationInjection
+    value: false
 
 stages:
 - template: ./templates/releaseBuildAndPushStage.yml
@@ -30,4 +33,3 @@ stages:
     - build_and_push_lts
   jobs:
     - template: ./templates/virusScanPhase.yml
-

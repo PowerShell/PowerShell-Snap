@@ -6,12 +6,14 @@ jobs:
   displayName: Virus Scan
 
   variables:
+    - name: repoFolder
+      value: 'PowerShell-Snap'
     - name: repoPath
-      value: $(Agent.BuildDirectory)\PowerShell-Snap
+      value: $(Agent.BuildDirectory)\$(repoFolder)
 
   steps:
   - checkout: self
-      path: $(repoPath)
+    path: $(repoFolder)
   - checkout: ComplianceRepo
 
   - task: DownloadBuildArtifacts@0
@@ -39,5 +41,6 @@ jobs:
       optionsXS: 1
       optionsPE: '1|2|3|4'
       optionsHMENABLE: 0
+      optionsUEPath: $(repoPath)\tools\terms\TermsExclusion.xml
     continueOnError: true
 
