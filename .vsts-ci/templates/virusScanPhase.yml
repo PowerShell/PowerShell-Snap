@@ -1,9 +1,9 @@
 jobs:
-- job: virus_scan
+- job: compliance
   pool:
     name: 'PowerShell1ES'
 
-  displayName: Virus Scan
+  displayName: Compliance
 
   variables:
     - name: repoFolder
