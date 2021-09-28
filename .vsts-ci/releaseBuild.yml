@@ -1,9 +1,17 @@
 resources:
-- repo: self
-  clean: true
+  repositories:
+  - repository: self
+    clean: true
+  - repository: ComplianceRepo
+    type: github
+    endpoint: ComplianceGHRepo
+    name: PowerShell/Compliance
 
 variables:
-  POWERSHELL_TELEMETRY_OPTOUT: 1
+  - name: POWERSHELL_TELEMETRY_OPTOUT
+    value: 1
+  - name: runCodesignValidationInjection
+    value: false
 
 stages:
 - template: ./templates/releaseBuildAndPushStage.yml
@@ -24,4 +32,4 @@ stages:
     - build_and_push_preview
     - build_and_push_lts
   jobs:
-  - template: ./templates/virusScanPhase.yml
+    - template: ./templates/virusScanPhase.yml

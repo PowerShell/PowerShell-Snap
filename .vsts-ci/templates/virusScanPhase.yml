@@ -1,21 +1,46 @@
 jobs:
-- job: virus_scan
+- job: compliance
   pool:
-    name: 'Package ES CodeHub Lab E'
+    name: 'PowerShell1ES'
 
-  displayName: Virus Scan
+  displayName: Compliance
+
+  variables:
+    - name: repoFolder
+      value: 'PowerShell-Snap'
+    - name: repoPath
+      value: $(Agent.BuildDirectory)\$(repoFolder)
 
   steps:
+  - checkout: self
+    path: $(repoFolder)
+  - checkout: ComplianceRepo
+
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts'
     inputs:
       downloadType: specific
+      downloadPath: '$(System.ArtifactsDirectory)'
 
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-antimalware.AntiMalware@3
-    displayName: 'Run Virus Scan'
-    inputs:
-      FileDirPath: '$(System.ArtifactsDirectory)'
+  - template: EsrpScan.yml@ComplianceRepo
+    parameters:
+      scanPath: $(System.ArtifactsDirectory)
+      pattern: |
+        **\*
+      scanningService: 'pwshEsrpScanning'
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'
+
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
+    displayName: 'Run PoliCheck'
+    inputs:
+      targetArgument: $(repoPath)
+      targetType: F
+      optionsFC: 0
+      optionsXS: 1
+      optionsPE: '1|2|3|4'
+      optionsHMENABLE: 0
+      optionsUEPath: $(repoPath)\tools\terms\TermsExclusion.xml
+    continueOnError: true
 
