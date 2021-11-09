@@ -7,6 +7,10 @@ parameters:
       type: string
     - name: jobName
       type: string
+    - name: timeoutInMinutes
+      type: integer
+      # 2 days
+      default: 2880
     - name: onTimeout
       type: string
       default: 'reject'
@@ -22,7 +26,7 @@ jobs:
       steps:
       - task: ManualValidation@0
         displayName: ${{ parameters.displayName }}
-        timeoutInMinutes: 1440 # task times out in 1 day
+        timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
         inputs:
           notifyUsers: ${{ parameters.notifyUsers }}
           instructions: ${{ parameters.instructions }}
