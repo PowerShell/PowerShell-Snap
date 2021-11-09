@@ -1,126 +1,129 @@
 parameters:
   - name: vmImage
     default: 'ubuntu-18.04'
-  - name: channel
-    type: string
+  - name: matrix
+    type: object
   - name: release
     default: 'private'
 
 jobs:
-- deployment: upload
+- job: push
+
   displayName: Push to ${{ parameters.release }}
+
+  strategy:
+    matrix:
+      ${{ parameters.matrix }}
+
   pool:
     vmImage: ${{ parameters.vmImage }}
+
   variables:
-  - name: ReleaseTag
-    value: edge/default
-  - group: SnapLogin
-  environment: SnapUpload
-  strategy:
-    runOnce:
-      deploy:
-        steps:
-        - checkout: self
-          path: $(repoFolder)
-        - checkout: ComplianceRepo
+    - name: ReleaseTag
+      value: edge/default
+    - group: SnapLogin
 
-        - task: DownloadBuildArtifacts@0
-          displayName: 'Download Build Artifacts'
-          inputs:
-            downloadType: specific
-            itemPattern: '$(channel)/**/*.snap'
+  steps:
+  - checkout: self
+    path: $(repoFolder)
+  - checkout: ComplianceRepo
 
-        - template: EsrpScan.yml@ComplianceRepo
-          parameters:
-            scanPath: $(System.ArtifactsDirectory)
-            pattern: |
-              **/*.snap
-            scanningService: 'pwshEsrpScanning'
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Build Artifacts'
+    inputs:
+      downloadType: specific
+      itemPattern: '$(channel)/**/*.snap'
 
-        - pwsh: |
-            $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
-            if($snaps.Count -gt 1)
-            {
-              $snaps | out-string -width 100 | Write-Verbose -verbose
-              Write-Error "***More than one snap found***" -errorAction stop
-            }
-          displayName: Verify that only one snap was downloaded
+  - template: EsrpScan.yml@ComplianceRepo
+    parameters:
+      scanPath: $(System.ArtifactsDirectory)
+      pattern: |
+        **/*.snap
+      scanningService: 'pwshEsrpScanning'
 
-        - pwsh: |
-            [string]$Branch=$env:BUILD_SOURCEBRANCH
-            $branchOnly = $Branch -replace '^refs/heads/';
-            $branchOnly = $branchOnly -replace '[_\-]'
+  - pwsh: |
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+      if($snaps.Count -gt 1)
+      {
+        $snaps | out-string -width 100 | Write-Verbose -verbose
+        Write-Error "***More than one snap found***" -errorAction stop
+      }
+    displayName: Verify that only one snap was downloaded
 
-            if('${{ parameters.release }}' -eq 'private') {
-              if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
-              {
-                  Write-verbose "release branch:" -verbose
-                  $generatedBranch = (get-date).ToString('yyyyMMddHH')
-                  $releaseTag = "edge/$generatedBranch"
-              }
-              else
-              {
-                  Write-verbose "non-release branch" -verbose
-                  # Branch is named <previewname>
-                  $releaseTag = "edge/$branchOnly"
-              }
-            } else {
-              $releaseTag = "${{ parameters.release }}"
-            }
+  - pwsh: |
+      [string]$Branch=$env:BUILD_SOURCEBRANCH
+      $branchOnly = $Branch -replace '^refs/heads/';
+      $branchOnly = $branchOnly -replace '[_\-]'
 
-            $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
-            Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
-            Write-Host -Object "##$vstsCommandString"
-          displayName: Set ReleaseTag Variable
+      if('${{ parameters.release }}' -eq 'private') {
+        if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
+        {
+            Write-verbose "release branch:" -verbose
+            $generatedBranch = (get-date).ToString('yyyyMMddHH')
+            $releaseTag = "edge/$generatedBranch"
+        }
+        else
+        {
+            Write-verbose "non-release branch" -verbose
+            # Branch is named <previewname>
+            $releaseTag = "edge/$branchOnly"
+        }
+      } else {
+        $releaseTag = "${{ parameters.release }}"
+      }
 
-        - pwsh: |
-              sudo chown root:root /
-          displayName: 'Make sure root owns root'
-          condition: succeeded()
+      $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
+      Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
+      Write-Host -Object "##$vstsCommandString"
+    displayName: Set ReleaseTag Variable
 
-        - pwsh: |
-              $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
-              Write-Verbose -Verbose -Message "using Channel $channel"
-              sudo snap install snapcraft --classic "--channel=$channel"
-          condition: succeeded()
-          displayName: 'Install snapcraft'
+  - pwsh: |
+        sudo chown root:root /
+    displayName: 'Make sure root owns root'
+    condition: succeeded()
 
-        - task: ManualValidation@0
-          timeoutInMinutes: 2880 # task times out in 1 day
-          inputs:
-            notifyUsers: |
-              travis.plunk@microsoft.com
-            instructions: 'Approve the release to: $[variables.ReleaseTag]'
-            onTimeout: 'reject'
+  - pwsh: |
+        $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
+        Write-Verbose -Verbose -Message "using Channel $channel"
+        sudo snap install snapcraft --classic "--channel=$channel"
+    condition: succeeded()
+    displayName: 'Install snapcraft'
 
-        - pwsh: |
-            $loginFile='./snapstore.login'
+  - task: ManualValidation@0
+    timeoutInMinutes: 2880 # task times out in 1 day
+    inputs:
+      notifyUsers: |
+        travis.plunk@microsoft.com
+      instructions: 'Approve the release to: $[variables.ReleaseTag]'
+      onTimeout: 'reject'
 
-            '$(SNAPLOGIN)' | base64 --decode --ignore-garbage > $loginFile
-            snapcraft login --with $loginFile
-            rm $loginFile
-          displayName: 'snapcraft login'
+  - pwsh: |
+      $loginFile='./snapstore.login'
 
-        - pwsh: |
-            $track = 'latest'
-            if('$(channel)' -eq 'lts')
-            {
-              $track = 'lts'
-            }
+      '$(SNAPLOGIN)' | base64 --decode --ignore-garbage > $loginFile
+      snapcraft login --with $loginFile
+      rm $loginFile
+    displayName: 'snapcraft login'
 
-            $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
+  - pwsh: |
+      $track = 'latest'
+      if('$(channel)' -eq 'lts')
+      {
+        $track = 'lts'
+      }
 
-            foreach($snap in $snaps)
-            {
-              Write-Verbose -Verbose -Message "Skipping uploading $snap"
-              #snapcraft upload --release "$track/$(ReleaseTag)" $snap
-            }
-          displayName: 'snapcraft upload'
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
 
-        - pwsh: |
-            snapcraft logout
-          displayName: 'snapcraft logout'
-          condition: always()
+      foreach($snap in $snaps)
+      {
+        snapcraft upload --release "$track/$(ReleaseTag)" $snap
+      }
+    displayName: 'snapcraft upload'
 
-        - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-          displayName: 'Component Detection'
+  - pwsh: |
+      snapcraft logout
+    displayName: 'snapcraft logout'
+    condition: always()
+
+  - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+    displayName: 'Component Detection'
