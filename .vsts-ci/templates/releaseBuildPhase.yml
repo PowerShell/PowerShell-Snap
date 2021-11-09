@@ -1,6 +1,7 @@
 parameters:
   vmImage: 'ubuntu-18.04'
   matrix:
+  test: Yes
 
 jobs:
 
