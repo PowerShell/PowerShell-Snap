@@ -37,13 +37,22 @@ jobs:
       switch('$(channel)') {
         'stable' {
           cd stable
-        }
-        'lts' {
-          cd lts
-        }
-        'preview' {
-          cd preview
-        }
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+          'lts' {
+            cd stable
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+          'preview' {
+            cd preview
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell-preview"
+            Write-Host $message
+            Write-Host "##$message"
+          }
         default {
           throw "Unknown channel: '$(channel)'"
         }
@@ -67,6 +76,16 @@ jobs:
       }
     displayName: Build snap $(channel)
     condition: and(succeeded(), ne(variables['$(channel)'],'no'))
+
+  - powershell: |
+        sudo snap install $(PS_SNAP_PATH) --classic --dangerous
+    displayName: 'Install $(SnapChannel) snap'
+    condition: succeeded()
+
+  - powershell: |
+        &"$(PS_SNAP_EXEC)" -nologo -c '$psversiontable'
+    displayName: 'Test $(SnapChannel) snap'
+    condition: and(succeeded(), eq('${{ parameters.test }}','Yes'))
 
   # Uploads any packages as an artifact
   - powershell: |

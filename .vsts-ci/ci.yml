@@ -5,23 +5,29 @@ resources:
 
 jobs:
 
-- job: Set_Build_Name
-#  displayName: Set Build Name
-  condition: ne(variables['Build.Reason'], 'PullRequest')
-  pool:
-    name: Hosted Ubuntu 1604
-  steps:
-  - powershell:  Write-Host "##vso[build.updatebuildnumber]$env:BUILD_SOURCEBRANCHNAME-$env:BUILD_SOURCEVERSION-$((get-date).ToString("yyyyMMddhhss"))"
-    displayName: Set Build Name for Non-PR
+- ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+    - job: Set_Build_Name
+      displayName: Set Build Name
+      pool:
+          name: Hosted Ubuntu 1604
+      steps:
+      - powershell:  Write-Host "##vso[build.updatebuildnumber]$env:BUILD_SOURCEBRANCHNAME-$env:BUILD_SOURCEVERSION-$((get-date).ToString("yyyyMMddhhss"))"
+          displayName: Set Build Name for Non-PR
 
-- template: ./phase.yml
+- template: ./templates/releaseBuildPhase.yml
   parameters:
-    SnapChannel: lts
+    matrix:
+      lts:
+        channel: lts
 
-- template: ./phase.yml
+- template: ./templates/releaseBuildPhase.yml
   parameters:
-    SnapChannel: stable
+    matrix:
+      stable:
+        channel: stable
 
-- template: ./phase.yml
+- template: ./templates/releaseBuildPhase.yml
   parameters:
-    SnapChannel: preview
+    matrix:
+      preview:
+        channel: preview
