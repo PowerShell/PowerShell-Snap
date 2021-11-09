@@ -8,7 +8,7 @@ parameters:
 
 jobs:
 - job: scan
-  displayName: Push to ${{ parameters.release }}
+  displayName: Scan ${{ parameters.channel }}
 
   pool:
     vmImage: ubuntu-latest
