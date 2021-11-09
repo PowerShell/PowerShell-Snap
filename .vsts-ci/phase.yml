@@ -31,11 +31,22 @@ jobs:
     displayName: Install snapcraft
     condition: succeeded()
 
+  - bash: |
+        sudo apt update
+    displayName: Apt Update
+    condition: succeeded()
+
   - powershell: |
         $channel = '$(SnapChannel)'
         switch($channel)
         {
           'stable' {
+            cd stable
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+          'lts' {
             cd stable
             $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
             Write-Host $message

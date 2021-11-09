@@ -63,7 +63,18 @@ parts:
         echo $version > $file
       fi
       echo "getting powershell $version"
-      curl -L -o powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v$version/powershell-$version-linux-x64.tar.gz
+      case "$SNAPCRAFT_ARCH_TRIPLET" in
+        aarch64-linux-gnu)
+          curl -L -o powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v$version/powershell-$version-linux-arm64.tar.gz ;;
+        arm-linux-gnueabihf)
+          curl -L -o powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v$version/powershell-$version-linux-arm32.tar.gz ;;
+        x86_64-linux-gnu)
+          curl -L -o powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v$version/powershell-$version-linux-x64.tar.gz ;;
+        *)
+          # fail because we don't have a build for the requested platform
+          echo "The $SNAPCRAFT_ARCH_TRIPLET platform does not have an available build. Exiting."
+          exit 1 ;;
+      esac
       echo "getting Third Party Notice Header"
       curl -L -o thirdPartyNoticeHeader.txt https://raw.githubusercontent.com/PowerShell/PowerShell-Snap/master/assets/thirdPartyNoticeHeader.txt
       mkdir -p $SNAPCRAFT_PART_INSTALL/opt/powershell
@@ -80,9 +91,6 @@ parts:
       chmod +x $SNAPCRAFT_PART_INSTALL/opt/powershell/pwsh
       echo "fixing symlinks"
       find $SNAPCRAFT_PART_INSTALL -type l -ls
-      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
-      rm $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
-      echo "removed old symlinks"
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libcrypto.so.1.0.0
       ln -sfn ../../usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 $SNAPCRAFT_PART_INSTALL/opt/powershell/libssl.so.1.0.0
       echo "added new symlinks"
@@ -109,6 +117,7 @@ parts:
       - zlib1g
       - libgcc1
       - libstdc++6
+      - libssl1.0.0
     build-packages:
       - curl
       - jq
