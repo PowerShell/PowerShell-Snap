@@ -9,7 +9,7 @@ parameters:
 jobs:
 
 - job: build_${{ parameters.channel }}
-  displayName: Build {{ parameters.channel }}
+  displayName: Build ${{ parameters.channel }}
   variables:
     - name: channel
       value: ${{ parameters.channel }}
@@ -85,12 +85,12 @@ jobs:
 
   - powershell: |
         sudo snap install $(PS_SNAP_PATH) --classic --dangerous
-    displayName: 'Install $(SnapChannel) snap'
+    displayName: 'Install $(channel) snap'
     condition: succeeded()
 
   - powershell: |
         &"$(PS_SNAP_EXEC)" -nologo -c '$psversiontable'
-    displayName: 'Test $(SnapChannel) snap'
+    displayName: 'Test $(channel) snap'
     condition: and(succeeded(), eq('${{ parameters.test }}','Yes'))
 
   # Uploads any packages as an artifact
