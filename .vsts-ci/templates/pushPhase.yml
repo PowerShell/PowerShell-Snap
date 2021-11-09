@@ -62,8 +62,6 @@ jobs:
 
   steps:
   - checkout: self
-    path: $(repoFolder)
-  - checkout: ComplianceRepo
 
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts'
