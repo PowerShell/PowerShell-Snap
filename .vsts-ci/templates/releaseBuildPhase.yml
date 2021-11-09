@@ -42,13 +42,13 @@ jobs:
   - powershell: |
       switch('$(channel)') {
         'stable' {
-          cd stable
+            cd stable
             $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
             Write-Host $message
             Write-Host "##$message"
           }
           'lts' {
-            cd stable
+            cd lts
             $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
             Write-Host $message
             Write-Host "##$message"
