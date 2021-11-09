@@ -16,18 +16,12 @@ jobs:
 
 - template: ./templates/releaseBuildPhase.yml
   parameters:
-    matrix:
-      lts:
-        channel: lts
+    channel: lts
 
 - template: ./templates/releaseBuildPhase.yml
   parameters:
-    matrix:
-      stable:
-        channel: stable
+    channel: stable
 
 - template: ./templates/releaseBuildPhase.yml
   parameters:
-    matrix:
-      preview:
-        channel: preview
+    channel: preview

@@ -1,14 +1,19 @@
 parameters:
-  vmImage: 'ubuntu-18.04'
-  matrix:
-  test: Yes
+  - name: vmImage
+    default: 'ubuntu-18.04'
+  - name: channel
+    default: 'stable'
+  - name: test
+    default: Yes
 
 jobs:
 
-- job: build
-  strategy:
-    matrix:
-      ${{ parameters.matrix }}
+- job: build_${{ parameters.channel }}
+  displayName: Build {{ parameters.channel }}
+  variables:
+    - name: channel
+      value: ${{ parameters.channel }}
+
   pool:
     vmImage: ${{ parameters.vmImage }}
 
