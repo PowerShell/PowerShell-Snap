@@ -5,14 +5,17 @@ parameters:
       type: string
     - name: instructions
       type: string
+    - name: jobName
+      type: string
     - name: onTimeout
       type: string
+      default: 'reject'
       values:
           - resume
           - reject
 
 jobs:
-    - job: waitForValidation
+    - job: ${{ parameters.jobName }}
       displayName: Wait for external validation
       pool: server
       timeoutInMinutes: 4320 # job times out in 3 days

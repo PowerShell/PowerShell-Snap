@@ -7,8 +7,16 @@ parameters:
     default: 'private'
 
 jobs:
-- job: push
+- template: ./Approval.yml
+  parameters:
+    displayName: 'Approve ${{ parameters.release }} upload'
+    notifyUsers: |
+      travis.plunk@microsoft.com
+    instructions: 'Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"'
+    jobName: 'push_approval'
 
+- job: push
+  dependsOn: 'push_approval'
   displayName: Push to ${{ parameters.release }}
 
   pool:
@@ -87,14 +95,6 @@ jobs:
     condition: succeeded()
     displayName: 'Install snapcraft'
 
-  - task: ManualValidation@0
-    timeoutInMinutes: 2880 # task times out in 1 day
-    inputs:
-      notifyUsers: |
-        travis.plunk@microsoft.com
-      instructions: 'Approve the release to: $[variables.ReleaseTag]'
-      onTimeout: 'reject'
-
   - pwsh: |
       $loginFile='./snapstore.login'
 
@@ -114,7 +114,8 @@ jobs:
 
       foreach($snap in $snaps)
       {
-        snapcraft upload --release "$track/$(ReleaseTag)" $snap
+        Write-Verbose -Verbose -Message "Uploading $snap to $track/$(ReleaseTag)"
+        #snapcraft upload --release "$track/$(ReleaseTag)" $snap
       }
     displayName: 'snapcraft upload'
 
