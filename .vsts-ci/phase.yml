@@ -30,7 +30,7 @@ jobs:
         sudo snap install snapcraft --classic "--channel=$channel"
     displayName: Install snapcraft
     condition: succeeded()
-    
+
   - bash: |
         sudo apt update
     displayName: Apt Update
@@ -41,6 +41,12 @@ jobs:
         switch($channel)
         {
           'stable' {
+            cd stable
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+          'lts' {
             cd stable
             $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
             Write-Host $message
