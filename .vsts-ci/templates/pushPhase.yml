@@ -38,8 +38,6 @@ jobs:
 - template: ./Approval.yml
   parameters:
     displayName: 'Approve ${{ parameters.channel }}-${{ parameters.release }} upload'
-    notifyUsers: |
-      travis.plunk@microsoft.com
     instructions: 'Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"'
     jobName: 'push_approval'
 

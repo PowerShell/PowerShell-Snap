@@ -1,8 +1,6 @@
 parameters:
     - name: displayName
       type: string
-    - name: notifyUsers
-      type: string
     - name: instructions
       type: string
     - name: jobName
@@ -28,6 +26,5 @@ jobs:
         displayName: ${{ parameters.displayName }}
         timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
         inputs:
-          notifyUsers: ${{ parameters.notifyUsers }}
           instructions: ${{ parameters.instructions }}
           onTimeout: ${{ parameters.onTimeout }}
