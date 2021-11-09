@@ -22,7 +22,5 @@ stages:
   jobs:
   - template: ./pushPhase.yml
     parameters:
-      matrix:
-        ${{ parameters.channel }}:
-          channel: ${{ parameters.channel }}
+      channel: ${{ parameters.channel }}
       release: ${{ parameters.release }}
