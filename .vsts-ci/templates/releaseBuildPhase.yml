@@ -28,6 +28,11 @@ jobs:
     displayName: Install snapcraft
     condition: succeeded()
 
+  - bash: |
+        sudo apt update
+    displayName: Apt Update
+    condition: succeeded()
+
   - powershell: |
       switch('$(channel)') {
         'stable' {
