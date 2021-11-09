@@ -1,8 +1,8 @@
 parameters:
   - name: vmImage
     default: 'ubuntu-18.04'
-  - name: matrix
-    type: object
+  - name: channel
+    type: string
   - name: release
     default: 'private'
 
@@ -11,10 +11,6 @@ jobs:
 
   displayName: Push to ${{ parameters.release }}
 
-  strategy:
-    matrix:
-      ${{ parameters.matrix }}
-
   pool:
     vmImage: ${{ parameters.vmImage }}
 
@@ -22,6 +18,8 @@ jobs:
     - name: ReleaseTag
       value: edge/default
     - group: SnapLogin
+    - name: channel
+      value: ${{ parameters.channel }}
 
   steps:
   - checkout: self
