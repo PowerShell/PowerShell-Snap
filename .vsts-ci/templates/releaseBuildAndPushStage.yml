@@ -17,7 +17,7 @@ stages:
       vmImage: ${{ parameters.vmImage }}
 
 - stage: Push_${{ parameters.channel }}
-  displayName: Push - ${{ parameters.channel }}
+  displayName: Push - ${{ parameters.channel }} - ${{ parameters.release }}
   dependsOn: build_${{ parameters.channel }}
   jobs:
   - template: ./pushPhase.yml

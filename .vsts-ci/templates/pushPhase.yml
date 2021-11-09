@@ -7,16 +7,47 @@ parameters:
     default: 'private'
 
 jobs:
+- job: scan
+  displayName: Push to ${{ parameters.release }}
+
+  pool:
+    vmImage: ubuntu-latest
+
+  variables:
+    - name: channel
+      value: ${{ parameters.channel }}
+
+  steps:
+  - checkout: self
+    path: $(repoFolder)
+  - checkout: ComplianceRepo
+
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Build Artifacts'
+    inputs:
+      downloadType: specific
+      itemPattern: '$(channel)/**/*.snap'
+
+  - template: EsrpScan.yml@ComplianceRepo
+    parameters:
+      scanPath: $(System.ArtifactsDirectory)
+      pattern: |
+        **/*.snap
+      scanningService: 'pwshEsrpScanning'
+
 - template: ./Approval.yml
   parameters:
-    displayName: 'Approve ${{ parameters.release }} upload'
+    displayName: 'Approve ${{ parameters.channel }}-${{ parameters.release }} upload'
     notifyUsers: |
       travis.plunk@microsoft.com
     instructions: 'Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"'
     jobName: 'push_approval'
 
 - job: push
-  dependsOn: 'push_approval'
+  dependsOn:
+  - push_approval
+  - scan
+
   displayName: Push to ${{ parameters.release }}
 
   pool:
@@ -39,13 +70,6 @@ jobs:
     inputs:
       downloadType: specific
       itemPattern: '$(channel)/**/*.snap'
-
-  - template: EsrpScan.yml@ComplianceRepo
-    parameters:
-      scanPath: $(System.ArtifactsDirectory)
-      pattern: |
-        **/*.snap
-      scanningService: 'pwshEsrpScanning'
 
   - pwsh: |
       $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
