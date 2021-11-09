@@ -29,31 +29,6 @@ jobs:
     condition: succeeded()
 
   - powershell: |
-      $releaseTagName = switch('$(channel)') {
-        'stable' {
-          cd stable
-          'StableReleaseTag'
-        }
-        'lts' {
-          cd lts
-          'LtsReleaseTag'
-        }
-        'preview' {
-          cd preview
-          'PreviewReleaseTag'
-        }
-        default {
-          throw "Unknown channel: '$(channel)'"
-        }
-      }
-      Write-Host "releaseTagName: $releaseTagName"
-      $releaseTag = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json' | Select-Object -ExpandProperty $releaseTagName -First 1
-      Write-Host "$releaseTag"
-      Write-Host "##vso[task.setvariable variable=releaseTag;]$releaseTag"
-    displayName: Get Latest $(channel) Release Tag
-    condition: and(succeeded(), not(startsWith(variables['releaseTag'], 'v')))
-
-  - powershell: |
       switch('$(channel)') {
         'stable' {
           cd stable
