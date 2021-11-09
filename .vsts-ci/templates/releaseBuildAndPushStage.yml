@@ -4,7 +4,7 @@ parameters:
   - name: vmImage
     default: ubuntu-18.04
   - name: release
-    default: 'debug'
+    default: 'private'
 
 stages:
 - stage: build_${{ parameters.channel }}

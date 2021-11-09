@@ -37,14 +37,17 @@ stages:
 - template: ./templates/releaseBuildAndPushStage.yml
   parameters:
     channel: stable
+    release: ${{ parameters.release }}
 
 - template: ./templates/releaseBuildAndPushStage.yml
   parameters:
     channel: preview
+    release: ${{ parameters.release }}
 
 - template: ./templates/releaseBuildAndPushStage.yml
   parameters:
     channel: lts
+    release: ${{ parameters.release }}
 
 - stage: Compliance
   dependsOn: []
