@@ -45,6 +45,7 @@ stages:
     channel: lts
 
 - stage: Compliance
+  dependsOn: []
   displayName: Compliance
   jobs:
     - template: ./templates/virusScanPhase.yml
