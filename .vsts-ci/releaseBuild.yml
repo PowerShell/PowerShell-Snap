@@ -16,6 +16,8 @@ parameters:
       - edge
   default: stable
 
+trigger: none
+
 resources:
   repositories:
   - repository: self
