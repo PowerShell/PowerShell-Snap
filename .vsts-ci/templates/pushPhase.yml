@@ -137,7 +137,7 @@ jobs:
       foreach($snap in $snaps)
       {
         Write-Verbose -Verbose -Message "Uploading $snap to $track/$(ReleaseTag)"
-        #snapcraft upload --release "$track/$(ReleaseTag)" $snap
+        snapcraft upload --release "$track/$(ReleaseTag)" $snap
       }
     displayName: 'snapcraft upload'
 
