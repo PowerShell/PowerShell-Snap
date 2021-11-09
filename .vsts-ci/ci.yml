@@ -3,25 +3,36 @@ resources:
 - repo: self
   clean: true
 
-jobs:
+stages:
+- ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+  - stage: prepare
+    displayName: Prepare
+    jobs:
+    - job: Set_Build_Name
+      displayName: Set Build Name
+      pool:
+        vmImage: ubuntu-18.04
+      steps:
+      - powershell:  Write-Host "##vso[build.updatebuildnumber]$env:BUILD_SOURCEBRANCHNAME-$env:BUILD_SOURCEVERSION-$((get-date).ToString("yyyyMMddhhss"))"
+        displayName: Set Build Name for Non-PR
 
-- job: Set_Build_Name
-#  displayName: Set Build Name
-  condition: ne(variables['Build.Reason'], 'PullRequest')
-  pool:
-    name: Hosted Ubuntu 1604
-  steps:
-  - powershell:  Write-Host "##vso[build.updatebuildnumber]$env:BUILD_SOURCEBRANCHNAME-$env:BUILD_SOURCEVERSION-$((get-date).ToString("yyyyMMddhhss"))"
-    displayName: Set Build Name for Non-PR
+- stage: lts
+  dependsOn: []
+  jobs:
+  - template: ./templates/releaseBuildPhase.yml
+    parameters:
+      channel: lts
 
-- template: ./phase.yml
-  parameters:
-    SnapChannel: lts
+- stage: stable
+  dependsOn: []
+  jobs:
+  - template: ./templates/releaseBuildPhase.yml
+    parameters:
+      channel: stable
 
-- template: ./phase.yml
-  parameters:
-    SnapChannel: stable
-
-- template: ./phase.yml
-  parameters:
-    SnapChannel: preview
+- stage: preview
+  dependsOn: []
+  jobs:
+  - template: ./templates/releaseBuildPhase.yml
+    parameters:
+      channel: preview

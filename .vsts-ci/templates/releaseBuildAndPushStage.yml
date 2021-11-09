@@ -9,9 +9,7 @@ stages:
   jobs:
   - template: ./releaseBuildPhase.yml
     parameters:
-      matrix:
-        ${{ parameters.channel }}:
-          channel: ${{ parameters.channel }}
+      channel: ${{ parameters.channel }}
       vmImage: ${{ parameters.vmImage }}
 
   - template: ./pushPhase.yml

@@ -1,13 +1,19 @@
 parameters:
-  vmImage: 'ubuntu-18.04'
-  matrix:
+  - name: vmImage
+    default: 'ubuntu-18.04'
+  - name: channel
+    default: 'stable'
+  - name: test
+    default: Yes
 
 jobs:
 
-- job: build
-  strategy:
-    matrix:
-      ${{ parameters.matrix }}
+- job: build_${{ parameters.channel }}
+  displayName: Build ${{ parameters.channel }}
+  variables:
+    - name: channel
+      value: ${{ parameters.channel }}
+
   pool:
     vmImage: ${{ parameters.vmImage }}
 
@@ -28,17 +34,31 @@ jobs:
     displayName: Install snapcraft
     condition: succeeded()
 
+  - bash: |
+        sudo apt update
+    displayName: Apt Update
+    condition: succeeded()
+
   - powershell: |
       switch('$(channel)') {
         'stable' {
-          cd stable
-        }
-        'lts' {
-          cd lts
-        }
-        'preview' {
-          cd preview
-        }
+            cd stable
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+          'lts' {
+            cd lts
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+          'preview' {
+            cd preview
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell-preview"
+            Write-Host $message
+            Write-Host "##$message"
+          }
         default {
           throw "Unknown channel: '$(channel)'"
         }
@@ -62,6 +82,16 @@ jobs:
       }
     displayName: Build snap $(channel)
     condition: and(succeeded(), ne(variables['$(channel)'],'no'))
+
+  - powershell: |
+        sudo snap install $(PS_SNAP_PATH) --classic --dangerous
+    displayName: 'Install $(channel) snap'
+    condition: succeeded()
+
+  - powershell: |
+        &"$(PS_SNAP_EXEC)" -nologo -c '$psversiontable'
+    displayName: 'Test $(channel) snap'
+    condition: and(succeeded(), eq('${{ parameters.test }}','Yes'))
 
   # Uploads any packages as an artifact
   - powershell: |
