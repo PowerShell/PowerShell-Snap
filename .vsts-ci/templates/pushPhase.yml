@@ -62,7 +62,7 @@ jobs:
 
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
-      scanPath: $(Agent.TempDirectory)/pwshSnapCopy
+      scanPath: $(SNAP_COPY)
       pattern: |
         **/*
       scanningService: 'pwshEsrpScanning'
