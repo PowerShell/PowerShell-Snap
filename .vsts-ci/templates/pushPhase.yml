@@ -44,9 +44,19 @@ jobs:
       get-childitem -recurse $mount
     displayName: Unsquash Snap and capture contents
 
+  # Copy to read write filesystem because scan tries to write back to this folder.
+  - pwsh: |
+      $mount = '$(Agent.TempDirectory)/pwshSnap'
+      $readWriteCopy = '$(Agent.TempDirectory)/pwshSnapCopy'
+      $null = new-item -Path $readWriteCopy -ItemType Directory -Force
+      Copy-Item -Path $mount -Destination $readWriteCory\ -Recurse
+      Write-Verbose -Verbose "get-childitem -recurse $readWriteCopy"
+      get-childitem -recurse $readWriteCopy
+    displayName: Copy to read/wrie fs
+
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
-      scanPath: $(Agent.TempDirectory)/pwshSnap
+      scanPath: $(Agent.TempDirectory)/pwshSnapCopy
       pattern: |
         **/*
       scanningService: 'pwshEsrpScanning'
