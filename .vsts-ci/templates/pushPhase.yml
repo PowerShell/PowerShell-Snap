@@ -95,8 +95,8 @@ jobs:
       if('${{ parameters.release }}' -eq 'private') {
         if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
         {
-            Write-verbose "release branch:" $branchOnly -verbose
-            $generatedBranch = (get-date).ToString('yyyyMMddHH')
+            Write-verbose "release branch: $branchOnly" -verbose
+            $generatedBranch = ([guid]::NewGuid()).ToString().Replace('-','')
             $releaseTag = "edge/$generatedBranch"
         }
         else
@@ -104,6 +104,7 @@ jobs:
             Write-verbose "non-release branch" -verbose
             # Branch is named <previewname>
             $releaseTag = "edge/$branchOnly"
+            $releaseTag += ([guid]::NewGuid()).ToString().Replace('-','')
         }
       } else {
         $releaseTag = "${{ parameters.release }}"
