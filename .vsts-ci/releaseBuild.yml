@@ -1,3 +1,23 @@
+parameters:
+- name: release
+  type: string
+  displayName: |
+    Use `stable` to release by default.
+
+    Use `private` if you want to create a branch on the store to test the package.
+    This will create a branch under the edge branch automatically that are difficult, but not impossible to find.
+
+    `candidate`, `beta`, and `edge` are public but we don't have any existing meaning for these channels.
+  values:
+      - private
+      - stable
+      - candidate
+      - beta
+      - edge
+  default: stable
+
+trigger: none
+
 resources:
   repositories:
   - repository: self
@@ -17,19 +37,20 @@ stages:
 - template: ./templates/releaseBuildAndPushStage.yml
   parameters:
     channel: stable
+    release: ${{ parameters.release }}
 
 - template: ./templates/releaseBuildAndPushStage.yml
   parameters:
     channel: preview
+    release: ${{ parameters.release }}
 
 - template: ./templates/releaseBuildAndPushStage.yml
   parameters:
     channel: lts
+    release: ${{ parameters.release }}
 
-- stage: virus_scan
-  dependsOn:
-    - build_and_push_stable
-    - build_and_push_preview
-    - build_and_push_lts
+- stage: Compliance
+  dependsOn: []
+  displayName: Compliance
   jobs:
     - template: ./templates/virusScanPhase.yml

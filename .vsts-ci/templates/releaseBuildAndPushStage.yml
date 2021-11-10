@@ -1,10 +1,14 @@
 parameters:
-  channel: ''
-  vmImage: ubuntu-18.04
+  - name: channel
+    default: ''
+  - name: vmImage
+    default: ubuntu-18.04
+  - name: release
+    default: 'private'
 
 stages:
-- stage: build_and_push_${{ parameters.channel }}
-  displayName: Build and Push - ${{ parameters.channel }}
+- stage: build_${{ parameters.channel }}
+  displayName: Build - ${{ parameters.channel }}
   dependsOn: []
   jobs:
   - template: ./releaseBuildPhase.yml
@@ -12,9 +16,11 @@ stages:
       channel: ${{ parameters.channel }}
       vmImage: ${{ parameters.vmImage }}
 
+- stage: Push_${{ parameters.channel }}
+  displayName: Push - ${{ parameters.channel }} to ${{ parameters.release }}
+  dependsOn: build_${{ parameters.channel }}
+  jobs:
   - template: ./pushPhase.yml
     parameters:
-      matrix:
-        ${{ parameters.channel }}:
-          channel: ${{ parameters.channel }}
-      parentJobs: build
+      channel: ${{ parameters.channel }}
+      release: ${{ parameters.release }}

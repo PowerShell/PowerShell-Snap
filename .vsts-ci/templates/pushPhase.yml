@@ -1,30 +1,73 @@
 parameters:
-  vmImage: 'ubuntu-18.04'
-  parentJobs: []
-  matrix:
+  - name: vmImage
+    default: 'ubuntu-18.04'
+  - name: channel
+    type: string
+  - name: release
+    default: 'private'
 
 jobs:
-- job: push
-  strategy:
-    matrix:
-      ${{ parameters.matrix }}
+- job: scan
+  displayName: Scan ${{ parameters.channel }}
+
   pool:
-    vmImage: ${{ parameters.vmImage }}
+    vmImage: ubuntu-latest
 
   variables:
-    ReleaseTag: edge/default
-
-  dependsOn:
-    ${{ parameters.parentJobs }}
+    - name: channel
+      value: ${{ parameters.channel }}
 
   steps:
+  - checkout: self
+    path: $(repoFolder)
+  - checkout: ComplianceRepo
+
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts'
     inputs:
       downloadType: specific
       itemPattern: '$(channel)/**/*.snap'
 
-  - powershell: |
+  - template: EsrpScan.yml@ComplianceRepo
+    parameters:
+      scanPath: $(System.ArtifactsDirectory)
+      pattern: |
+        **/*.snap
+      scanningService: 'pwshEsrpScanning'
+
+- template: ./Approval.yml
+  parameters:
+    displayName: 'Approve ${{ parameters.channel }}-${{ parameters.release }} upload'
+    instructions: 'Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"'
+    jobName: 'push_approval'
+
+- job: push
+  dependsOn:
+  - push_approval
+  - scan
+
+  displayName: Push to ${{ parameters.release }}
+
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+
+  variables:
+    - name: ReleaseTag
+      value: edge/default
+    - group: SnapLogin
+    - name: channel
+      value: ${{ parameters.channel }}
+
+  steps:
+  - checkout: self
+
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Build Artifacts'
+    inputs:
+      downloadType: specific
+      itemPattern: '$(channel)/**/*.snap'
+
+  - pwsh: |
       $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
       if($snaps.Count -gt 1)
       {
@@ -33,44 +76,46 @@ jobs:
       }
     displayName: Verify that only one snap was downloaded
 
-  - powershell: |
+  - pwsh: |
       [string]$Branch=$env:BUILD_SOURCEBRANCH
       $branchOnly = $Branch -replace '^refs/heads/';
       $branchOnly = $branchOnly -replace '[_\-]'
 
-      if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
-      {
-          Write-verbose "release branch:" -verbose
-          $generatedBranch = (get-date).ToString('yyyyMMddHH')
-          $releaseTag = "edge/$generatedBranch"
-          $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
-          Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
-          Write-Host -Object "##$vstsCommandString"
+      if('${{ parameters.release }}' -eq 'private') {
+        if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
+        {
+            Write-verbose "release branch:" $branchOnly -verbose
+            $generatedBranch = (get-date).ToString('yyyyMMddHH')
+            $releaseTag = "edge/$generatedBranch"
+        }
+        else
+        {
+            Write-verbose "non-release branch" -verbose
+            # Branch is named <previewname>
+            $releaseTag = "edge/$branchOnly"
+        }
+      } else {
+        $releaseTag = "${{ parameters.release }}"
       }
-      else
-      {
-          Write-verbose "non-release branch" -verbose
-          # Branch is named <previewname>
-          $releaseTag = "edge/$branchOnly"
-          $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
-          Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
-          Write-Host -Object "##$vstsCommandString"
-      }
+
+      $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
+      Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
+      Write-Host -Object "##$vstsCommandString"
     displayName: Set ReleaseTag Variable
 
-  - powershell: |
+  - pwsh: |
         sudo chown root:root /
     displayName: 'Make sure root owns root'
     condition: succeeded()
 
-  - powershell: |
+  - pwsh: |
         $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
         Write-Verbose -Verbose -Message "using Channel $channel"
         sudo snap install snapcraft --classic "--channel=$channel"
     condition: succeeded()
     displayName: 'Install snapcraft'
 
-  - powershell: |
+  - pwsh: |
       $loginFile='./snapstore.login'
 
       '$(SNAPLOGIN)' | base64 --decode --ignore-garbage > $loginFile
@@ -78,7 +123,7 @@ jobs:
       rm $loginFile
     displayName: 'snapcraft login'
 
-  - powershell: |
+  - pwsh: |
       $track = 'latest'
       if('$(channel)' -eq 'lts')
       {
@@ -89,15 +134,15 @@ jobs:
 
       foreach($snap in $snaps)
       {
-        snapcraft push --release "$track/$(ReleaseTag)" $snap
+        Write-Verbose -Verbose -Message "Uploading $snap to $track/$(ReleaseTag)"
+        snapcraft upload --release "$track/$(ReleaseTag)" $snap
       }
-    displayName: 'snapcraft push'
+    displayName: 'snapcraft upload'
 
-  - powershell: |
+  - pwsh: |
       snapcraft logout
     displayName: 'snapcraft logout'
     condition: always()
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'
-
