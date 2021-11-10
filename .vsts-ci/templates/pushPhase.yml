@@ -84,7 +84,7 @@ jobs:
       if('${{ parameters.release }}' -eq 'private') {
         if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
         {
-            Write-verbose "release branch:" -verbose
+            Write-verbose "release branch:" $branchOnly -verbose
             $generatedBranch = (get-date).ToString('yyyyMMddHH')
             $releaseTag = "edge/$generatedBranch"
         }
