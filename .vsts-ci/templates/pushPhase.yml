@@ -28,11 +28,22 @@ jobs:
       downloadType: specific
       itemPattern: '$(channel)/**/*.snap'
 
+  - pwsh: |
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+      if($snaps.Count -gt 1)
+      {
+        $snaps | out-string -width 100 | Write-Verbose -verbose
+        Write-Error "***More than one snap found***" -errorAction stop
+      }
+      $snap = $snaps[0].fullname
+      sudo mount -t squashfs -o ro $snap /mnt/snap
+    displayName: Unsquash Snap
+
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
       scanPath: $(System.ArtifactsDirectory)
       pattern: |
-        **/*.snap
+        /mnt/snap/**/*
       scanningService: 'pwshEsrpScanning'
 
 - template: ./Approval.yml
