@@ -48,9 +48,9 @@ jobs:
 
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
-      scanPath: $(System.ArtifactsDirectory)
+      scanPath: $(Agent.TempDirectory)/pwshSnap
       pattern: |
-        $(Agent.TempDirectory)/pwshSnap/**/*
+        **/*
       scanningService: 'pwshEsrpScanning'
 
 - template: ./Approval.yml
