@@ -16,6 +16,11 @@ jobs:
   variables:
     - name: channel
       value: ${{ parameters.channel }}
+    - name: SNAP_MOUNT
+      value: $(Agent.TempDirectory)/pwshSnap
+    - name: SNAP_COPY
+      value: $(Agent.TempDirectory)/pwshSnapCopy
+
 
   steps:
   - checkout: self
@@ -36,7 +41,7 @@ jobs:
         Write-Error "***More than one snap found***" -errorAction stop
       }
       $snap = $snaps[0].fullname
-      $mount = '$(Agent.TempDirectory)/pwshSnap'
+      $mount = $env:SNAP_MOUNT
       $null = new-item -Path $mount -ItemType Directory -Force
       Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
       sudo mount -t squashfs -o ro $snap $mount
@@ -46,10 +51,11 @@ jobs:
 
   # Copy to read write filesystem because scan tries to write back to this folder.
   - pwsh: |
-      $mount = '$(Agent.TempDirectory)/pwshSnap'
-      $readWriteCopy = '$(Agent.TempDirectory)/pwshSnapCopy'
+      $mount = $env:SNAP_MOUNT
+      $readWriteCopy = $env:SNAP_COPY
+      Write-Verbose -Verbose "mount: $mount; copy: $readWriteCopy"
       $null = new-item -Path $readWriteCopy -ItemType Directory -Force
-      Copy-Item -Path $mount -Destination $readWriteCory\ -Recurse
+      Copy-Item -Path $mount -Destination $readWriteCopy\ -Recurse
       Write-Verbose -Verbose "get-childitem -recurse $readWriteCopy"
       get-childitem -recurse $readWriteCopy
     displayName: Copy to read/wrie fs
