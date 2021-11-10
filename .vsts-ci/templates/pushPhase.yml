@@ -42,9 +42,7 @@ jobs:
       sudo mount -t squashfs -o ro $snap $mount
       Write-Verbose -Verbose "get-childitem -recurse $mount"
       get-childitem -recurse $mount
-      Write-Verbose -Verbose "sudo ls -R $mount"
-      sudo ls -R $mount
-    displayName: Unsquash Snap
+    displayName: Unsquash Snap and capture contents
 
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
