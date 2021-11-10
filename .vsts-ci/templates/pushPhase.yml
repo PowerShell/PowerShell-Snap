@@ -36,14 +36,17 @@ jobs:
         Write-Error "***More than one snap found***" -errorAction stop
       }
       $snap = $snaps[0].fullname
-      sudo mount -t squashfs -o ro $snap /mnt/snap
+      $mount = '$(Agent.TempDirectory)/pwshSnap'
+      $null = new-item -Path $mount -ItemType Directory -Force
+      Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
+      sudo mount -t squashfs -o ro $snap $mount
     displayName: Unsquash Snap
 
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
       scanPath: $(System.ArtifactsDirectory)
       pattern: |
-        /mnt/snap/**/*
+        $(Agent.TempDirectory)/pwshSnap/**/*
       scanningService: 'pwshEsrpScanning'
 
 - template: ./Approval.yml
