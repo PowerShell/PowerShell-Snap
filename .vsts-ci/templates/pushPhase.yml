@@ -40,6 +40,10 @@ jobs:
       $null = new-item -Path $mount -ItemType Directory -Force
       Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
       sudo mount -t squashfs -o ro $snap $mount
+      Write-Verbose -Verbose "get-childitem -recurse $mount"
+      get-childitem -recurse $mount
+      Write-Verbose -Verbose "sudo ls -R $mount"
+      sudo ls -R $mount
     displayName: Unsquash Snap
 
   - template: EsrpScan.yml@ComplianceRepo
