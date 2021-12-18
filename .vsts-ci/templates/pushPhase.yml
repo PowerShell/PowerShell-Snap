@@ -16,6 +16,11 @@ jobs:
   variables:
     - name: channel
       value: ${{ parameters.channel }}
+    - name: SNAP_MOUNT
+      value: $(Agent.TempDirectory)/pwshSnap
+    - name: SNAP_COPY
+      value: $(Agent.TempDirectory)/pwshSnapCopy
+
 
   steps:
   - checkout: self
@@ -28,11 +33,38 @@ jobs:
       downloadType: specific
       itemPattern: '$(channel)/**/*.snap'
 
+  - pwsh: |
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+      if($snaps.Count -gt 1)
+      {
+        $snaps | out-string -width 100 | Write-Verbose -verbose
+        Write-Error "***More than one snap found***" -errorAction stop
+      }
+      $snap = $snaps[0].fullname
+      $mount = $env:SNAP_MOUNT
+      $null = new-item -Path $mount -ItemType Directory -Force
+      Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
+      sudo mount -t squashfs -o ro $snap $mount
+      Write-Verbose -Verbose "get-childitem -recurse $mount"
+      get-childitem -recurse $mount
+    displayName: Unsquash Snap and capture contents
+
+  # Copy to read write filesystem because scan tries to write back to this folder.
+  - pwsh: |
+      $mount = $env:SNAP_MOUNT
+      $readWriteCopy = $env:SNAP_COPY
+      Write-Verbose -Verbose "mount: $mount; copy: $readWriteCopy"
+      $null = new-item -Path $readWriteCopy -ItemType Directory -Force
+      Copy-Item -Path $mount -Destination $readWriteCopy\ -Recurse
+      Write-Verbose -Verbose "get-childitem -recurse $readWriteCopy"
+      get-childitem -recurse $readWriteCopy
+    displayName: Copy to read/wrie fs
+
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
-      scanPath: $(System.ArtifactsDirectory)
+      scanPath: $(SNAP_COPY)
       pattern: |
-        **/*.snap
+        **/*
       scanningService: 'pwshEsrpScanning'
 
 - template: ./Approval.yml
@@ -84,8 +116,8 @@ jobs:
       if('${{ parameters.release }}' -eq 'private') {
         if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
         {
-            Write-verbose "release branch:" $branchOnly -verbose
-            $generatedBranch = (get-date).ToString('yyyyMMddHH')
+            Write-verbose "release branch: $branchOnly" -verbose
+            $generatedBranch = ([guid]::NewGuid()).ToString().Replace('-','')
             $releaseTag = "edge/$generatedBranch"
         }
         else
@@ -93,6 +125,7 @@ jobs:
             Write-verbose "non-release branch" -verbose
             # Branch is named <previewname>
             $releaseTag = "edge/$branchOnly"
+            $releaseTag += ([guid]::NewGuid()).ToString().Replace('-','')
         }
       } else {
         $releaseTag = "${{ parameters.release }}"
