@@ -16,7 +16,7 @@ jobs:
 
   ${{ if startsWith(parameters.vmImage, 'PSMMS') }}:
     pool:
-        name: 1e
+        name: 1es
         demands:
         - ImageOverride -equals ${{ parameters.vmImage }}
 

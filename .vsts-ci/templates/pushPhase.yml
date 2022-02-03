@@ -11,7 +11,7 @@ jobs:
   displayName: Scan ${{ parameters.channel }}
 
   pool:
-    name: 1e
+    name: 1es
     demands:
     - ImageOverride -equals ${{ parameters.vmImage }}
 
