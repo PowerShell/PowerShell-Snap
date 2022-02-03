@@ -11,7 +11,7 @@ stages:
     - job: Set_Build_Name
       displayName: Set Build Name
       pool:
-        vmImage: ubuntu-20.04
+        vmImage: ubuntu-18.04
       steps:
       - powershell:  Write-Host "##vso[build.updatebuildnumber]$env:BUILD_SOURCEBRANCHNAME-$env:BUILD_SOURCEVERSION-$((get-date).ToString("yyyyMMddhhss"))"
         displayName: Set Build Name for Non-PR
@@ -22,7 +22,7 @@ stages:
   - template: ./templates/releaseBuildPhase.yml
     parameters:
       channel: lts
-      vmImage: ubuntu-20.04
+      vmImage: ubuntu-18.04
 
 - stage: stable
   dependsOn: []
@@ -30,7 +30,7 @@ stages:
   - template: ./templates/releaseBuildPhase.yml
     parameters:
       channel: stable
-      vmImage: ubuntu-20.04
+      vmImage: ubuntu-18.04
 
 - stage: preview
   dependsOn: []
@@ -38,4 +38,4 @@ stages:
   - template: ./templates/releaseBuildPhase.yml
     parameters:
       channel: preview
-      vmImage: ubuntu-20.04
+      vmImage: ubuntu-18.04

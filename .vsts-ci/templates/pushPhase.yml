@@ -1,6 +1,6 @@
 parameters:
   - name: vmImage
-    default: PSMMSUbuntu20.04-Secure
+    default: PSMMSUbuntu18.04-Secure
   - name: channel
     type: string
   - name: release
