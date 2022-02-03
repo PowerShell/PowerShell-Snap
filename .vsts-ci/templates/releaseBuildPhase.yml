@@ -14,8 +14,15 @@ jobs:
     - name: channel
       value: ${{ parameters.channel }}
 
-  pool:
-    vmImage: ${{ parameters.vmImage }}
+  ${{ if startsWith(parameters.vmImage, 'PSMMS') }}:
+    pool:
+        name: 1e
+        demands:
+        - ImageOverride -equals ${{ parameters.vmImage }}
+
+  ${{ if not(startsWith(parameters.vmImage, 'PSMMS')) }}:
+    pool:
+        vmImage: ${{ parameters.vmImage }}
 
   steps:
 
