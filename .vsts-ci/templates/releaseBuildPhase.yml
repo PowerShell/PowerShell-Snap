@@ -1,6 +1,6 @@
 parameters:
   - name: vmImage
-    default: 'ubuntu-18.04'
+    default: PSMMSUbuntu20.04-Secure
   - name: channel
     default: 'stable'
   - name: test

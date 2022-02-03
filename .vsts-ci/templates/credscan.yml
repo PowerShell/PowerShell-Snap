@@ -1,12 +1,14 @@
 parameters:
-  pool: 'Hosted VS2017'
+  pool: PSMMS2019-Secure
   jobName: 'credscan'
   displayName: Secret Scan
 
 jobs:
 - job: ${{ parameters.jobName }}
   pool:
-    name: ${{ parameters.pool }}
+    name: 1e
+    demands:
+    - ImageOverride -equals ${{ parameters.pool }}
 
   displayName: ${{ parameters.displayName }}
 
