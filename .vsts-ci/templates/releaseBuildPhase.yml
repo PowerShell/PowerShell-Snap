@@ -1,6 +1,6 @@
 parameters:
   - name: vmImage
-    default: 'ubuntu-18.04'
+    default: PSMMSUbuntu18.04-Secure
   - name: channel
     default: 'stable'
   - name: test
@@ -14,8 +14,15 @@ jobs:
     - name: channel
       value: ${{ parameters.channel }}
 
-  pool:
-    vmImage: ${{ parameters.vmImage }}
+  ${{ if startsWith(parameters.vmImage, 'PSMMS') }}:
+    pool:
+        name: 1es
+        demands:
+        - ImageOverride -equals ${{ parameters.vmImage }}
+
+  ${{ if not(startsWith(parameters.vmImage, 'PSMMS')) }}:
+    pool:
+        vmImage: ${{ parameters.vmImage }}
 
   steps:
 

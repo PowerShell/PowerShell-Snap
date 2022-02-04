@@ -1,6 +1,6 @@
 parameters:
   - name: vmImage
-    default: 'ubuntu-18.04'
+    default: PSMMSUbuntu18.04-Secure
   - name: channel
     type: string
   - name: release
@@ -11,7 +11,9 @@ jobs:
   displayName: Scan ${{ parameters.channel }}
 
   pool:
-    vmImage: ubuntu-latest
+    name: 1es
+    demands:
+    - ImageOverride -equals ${{ parameters.vmImage }}
 
   variables:
     - name: channel
@@ -81,7 +83,9 @@ jobs:
   displayName: Push to ${{ parameters.release }}
 
   pool:
-    vmImage: ${{ parameters.vmImage }}
+    name: 1es
+    demands:
+    - ImageOverride -equals ${{ parameters.vmImage }}
 
   variables:
     - name: ReleaseTag

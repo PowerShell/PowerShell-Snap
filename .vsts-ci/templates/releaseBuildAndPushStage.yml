@@ -2,7 +2,7 @@ parameters:
   - name: channel
     default: ''
   - name: vmImage
-    default: ubuntu-18.04
+    default: PSMMSUbuntu18.04-Secure
   - name: release
     default: 'private'
 

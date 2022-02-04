@@ -22,6 +22,7 @@ stages:
   - template: ./templates/releaseBuildPhase.yml
     parameters:
       channel: lts
+      vmImage: ubuntu-18.04
 
 - stage: stable
   dependsOn: []
@@ -29,6 +30,7 @@ stages:
   - template: ./templates/releaseBuildPhase.yml
     parameters:
       channel: stable
+      vmImage: ubuntu-18.04
 
 - stage: preview
   dependsOn: []
@@ -36,3 +38,4 @@ stages:
   - template: ./templates/releaseBuildPhase.yml
     parameters:
       channel: preview
+      vmImage: ubuntu-18.04

@@ -1,12 +1,11 @@
 parameters:
-  pool: 'Hosted VS2017'
   jobName: 'credscan'
   displayName: Secret Scan
 
 jobs:
 - job: ${{ parameters.jobName }}
   pool:
-    name: ${{ parameters.pool }}
+    vmImage: windows-latest
 
   displayName: ${{ parameters.displayName }}
 
