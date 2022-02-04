@@ -83,7 +83,9 @@ jobs:
   displayName: Push to ${{ parameters.release }}
 
   pool:
-    vmImage: ${{ parameters.vmImage }}
+    name: 1es
+    demands:
+    - ImageOverride -equals ${{ parameters.vmImage }}
 
   variables:
     - name: ReleaseTag
