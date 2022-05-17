@@ -153,14 +153,6 @@ jobs:
     displayName: 'Install snapcraft'
 
   - pwsh: |
-      $loginFile='./snapstore.login'
-
-      '$(SNAPLOGIN)' | base64 --decode --ignore-garbage > $loginFile
-      snapcraft login --with $loginFile
-      rm $loginFile
-    displayName: 'snapcraft login'
-
-  - pwsh: |
       $track = 'latest'
       if('$(channel)' -eq 'lts')
       {
@@ -175,11 +167,8 @@ jobs:
         snapcraft upload --release "$track/$(ReleaseTag)" $snap
       }
     displayName: 'snapcraft upload'
-
-  - pwsh: |
-      snapcraft logout
-    displayName: 'snapcraft logout'
-    condition: always()
+    env:
+        SNAPCRAFT_STORE_CREDENTIALS: $(SNAPLOGIN)
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'
