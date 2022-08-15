@@ -5,7 +5,7 @@ icon: assets/icon.png
 grade: stable
 
 adopt-info: powershell-preview
-base: core18
+base: core20
 summary: PowerShell for every system!
 description: |
   PowerShell is an automation and configuration management platform.
