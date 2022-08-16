@@ -1,5 +1,5 @@
 # Docker image file that describes an Ubuntu16.04 image with PowerShell and SnapCraft installed from Microsoft APT Repo
-FROM mcr.microsoft.com/powershell:ubuntu-18.04
+FROM mcr.microsoft.com/powershell:ubuntu-20.04
 
 ARG SNAPCRAFT_CHANNEL=stable
 
@@ -15,8 +15,8 @@ RUN echo SNAPCRAFT_URL: ${SNAPCRAFT_URL} && \
     jq \
     squashfs-tools \
     git && \
-  curl -L $(curl -H 'X-Ubuntu-Series: 16' 'https://api.snapcraft.io/api/v1/snaps/details/core18' | jq '.download_url' -r) --output core18.snap && \
-  mkdir -p /snap/core18 && unsquashfs -d /snap/core18/current core18.snap && rm core18.snap && \
+  curl -L $(curl -H 'X-Ubuntu-Series: 16' 'https://api.snapcraft.io/api/v1/snaps/details/core20' | jq '.download_url' -r) --output core20.snap && \
+  mkdir -p /snap/core20 && unsquashfs -d /snap/core20/current core20.snap && rm core20.snap && \
   curl -L $(curl -H 'X-Ubuntu-Series: 16' ${SNAPCRAFT_URL} | jq '.download_url' -r) --output snapcraft.snap && \
   mkdir -p /snap/snapcraft && unsquashfs -d /snap/snapcraft/current snapcraft.snap && rm snapcraft.snap && \
   apt remove --yes --purge jq squashfs-tools && \

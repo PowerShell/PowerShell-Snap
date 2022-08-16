@@ -5,7 +5,7 @@ icon: assets/icon.png
 grade: stable
 
 adopt-info: powershell-preview
-base: core18
+base: core20
 summary: PowerShell for every system!
 description: |
   PowerShell is an automation and configuration management platform.
@@ -110,12 +110,12 @@ parts:
       done >> $thirdPartyNoticeFile
       echo "Done building third party notices file - $thirdPartyNoticeFile"
     stage-packages:
-      - libicu60
+      - libicu66
       - liblttng-ust0
       - zlib1g
       - libgcc1
       - libstdc++6
-      - libssl1.0.0
+      - libssl1.1
     build-packages:
       - curl
       - jq
