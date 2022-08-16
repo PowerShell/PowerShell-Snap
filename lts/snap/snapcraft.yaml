@@ -112,12 +112,14 @@ parts:
       done >> $thirdPartyNoticeFile
       echo "Done building third party notices file - $thirdPartyNoticeFile"
     stage-packages:
-      - libicu60
+      - libicu66
       - liblttng-ust0
       - zlib1g
       - libgcc1
       - libstdc++6
-      - libssl1.0.0
+      - libssl1.1
+      - libc6
+      - libgssapi-krb5-2
     build-packages:
       - curl
       - jq
