@@ -10,8 +10,8 @@
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
         "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
-      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
-      "DockerImageName": "ps-snap-ubunutu-18-04",
+      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu20.04/Dockerfile",
+      "DockerImageName": "ps-snap-ubunutu-20-04",
       "BinaryBucket": "stable",
       "EnableFeature": [ "ArtifactAsFolder" ]
     },
@@ -24,8 +24,8 @@
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
         "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
-      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
-      "DockerImageName": "ps-snap-ubunutu-18-04",
+      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu20.04/Dockerfile",
+      "DockerImageName": "ps-snap-ubunutu-20-04",
       "BinaryBucket": "lts",
       "EnableFeature": [ "ArtifactAsFolder" ]
     },
@@ -38,8 +38,8 @@
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
         "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
-      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
-      "DockerImageName": "ps-snap-ubunutu-18-04",
+      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu20.04/Dockerfile",
+      "DockerImageName": "ps-snap-ubunutu-20-04",
       "BinaryBucket": "preview",
       "EnableFeature": [ "ArtifactAsFolder" ]
     },
@@ -52,8 +52,8 @@
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
         "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
-      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
-      "DockerImageName": "ps-snap-ubunutu-18-04",
+      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu20.04/Dockerfile",
+      "DockerImageName": "ps-snap-ubunutu-20-04",
       "BinaryBucket": "release"
     },
     {
@@ -65,8 +65,8 @@
         "./tools/releaseBuild/Images/GenericLinuxFiles/powershell-snap.ps1",
         "./tools/releaseBuild/Images/GenericLinuxFiles/snapcraft-wrapper"
       ],
-      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu18.04/Dockerfile",
-      "DockerImageName": "ps-snap-ubunutu-18-04",
+      "DockerFile": "./tools/releaseBuild/Images/microsoft_powershell_ubuntu20.04/Dockerfile",
+      "DockerImageName": "ps-snap-ubunutu-20-04",
       "BinaryBucket": "release"
     }
   ]
