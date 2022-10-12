@@ -57,10 +57,13 @@ jobs:
       $readWriteCopy = $env:SNAP_COPY
       Write-Verbose -Verbose "mount: $mount; copy: $readWriteCopy"
       $null = new-item -Path $readWriteCopy -ItemType Directory -Force
-      Copy-Item -Path $mount -Destination $readWriteCopy\ -Recurse
+      $filesToExclude = Get-ChildItem -Path $mount -Recurse | Where-Object Attributes -match reparsepoint
+      $exclude = @()
+      $exclude += $filesToExclude | ForEach-Object { "$($_.Name)" + "*" }
+      Copy-Item -Path $mount -Destination $readWriteCopy\ -Exclude $exclude -Force -Recurse -Verbose
       Write-Verbose -Verbose "get-childitem -recurse $readWriteCopy"
       get-childitem -recurse $readWriteCopy
-    displayName: Copy to read/wrie fs
+    displayName: Copy to read/write fs
 
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
