@@ -120,3 +120,4 @@ parts:
       - curl
       - jq
       - patchelf
+      - python-all
