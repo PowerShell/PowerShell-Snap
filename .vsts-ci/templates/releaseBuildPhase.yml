@@ -74,7 +74,7 @@ jobs:
       Write-Host "Building snap..."
       # destructive-mode leaves files and packages on the machine
       # This is okay because Azure DevOps Hosted machines are ephemeral.
-      Write-Host "snapcraft version: $(snapcraft --version)"
+      Write-Verbose "snapcraft version: $(snapcraft --version)" -Verbose
       snapcraft snap --debug --destructive-mode
       # snapcraft --destructive-mode
       Write-Host "finding snap..."
