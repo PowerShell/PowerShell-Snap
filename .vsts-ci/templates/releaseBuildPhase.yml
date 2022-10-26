@@ -76,7 +76,6 @@ jobs:
       # This is okay because Azure DevOps Hosted machines are ephemeral.
       Write-Verbose "snapcraft version: $(snapcraft --version)" -Verbose
       snapcraft snap --debug --destructive-mode
-      # snapcraft --destructive-mode
       Write-Host "finding snap..."
       $snap = Get-ChildItem "*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
       if(!$snap)
