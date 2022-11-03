@@ -154,6 +154,7 @@ jobs:
         sudo snap install snapcraft --classic "--channel=$channel"
     condition: succeeded()
     displayName: 'Install snapcraft'
+    retryCountOnTaskFailure: 2
 
   - pwsh: |
       $loginFile='./snapstore.login'
