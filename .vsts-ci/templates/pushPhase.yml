@@ -163,6 +163,7 @@ jobs:
       snapcraft login --with $loginFile
       rm $loginFile
     displayName: 'snapcraft login'
+    retryCountOnTaskFailure: 1
 
   - pwsh: |
       $track = 'latest'
@@ -179,6 +180,7 @@ jobs:
         snapcraft upload --release "$track/$(ReleaseTag)" $snap
       }
     displayName: 'snapcraft upload'
+    retryCountOnTaskFailure: 1
 
   - pwsh: |
       snapcraft logout
