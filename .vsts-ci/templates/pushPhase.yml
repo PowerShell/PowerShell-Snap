@@ -157,15 +157,6 @@ jobs:
     retryCountOnTaskFailure: 2
 
   - pwsh: |
-      $loginFile='./snapstore.login'
-
-      '$(SNAPLOGIN)' | base64 --decode --ignore-garbage > $loginFile
-      snapcraft login --with $loginFile
-      rm $loginFile
-    displayName: 'snapcraft login'
-    retryCountOnTaskFailure: 1
-
-  - pwsh: |
       $track = 'latest'
       if('$(channel)' -eq 'lts')
       {
@@ -181,11 +172,8 @@ jobs:
       }
     displayName: 'snapcraft upload'
     retryCountOnTaskFailure: 1
-
-  - pwsh: |
-      snapcraft logout
-    displayName: 'snapcraft logout'
-    condition: always()
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: $(SNAPCRAFT_STORE_CREDENTIALS)
 
   - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
     displayName: 'Component Detection'
