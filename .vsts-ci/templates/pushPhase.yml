@@ -10,7 +10,9 @@ jobs:
 - template: ./Approval.yml
   parameters:
     displayName: 'Approve ${{ parameters.channel }}-${{ parameters.release }} upload'
-    instructions: 'Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"'
+    instructions: |
+      Only approve one channel at a time or malware scanning will fail.
+      Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"
     jobName: 'push_approval'
 
 - job: scan
