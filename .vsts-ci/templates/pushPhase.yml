@@ -7,11 +7,19 @@ parameters:
     default: 'private'
 
 jobs:
+- template: ./Approval.yml
+  parameters:
+    displayName: 'Approve ${{ parameters.channel }}-${{ parameters.release }} upload'
+    instructions: 'Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"'
+    jobName: 'push_approval'
+
 - job: scan
   displayName: Scan ${{ parameters.channel }}
+  dependsOn:
+    - push_approval
 
   pool:
-    name: 1es
+    name: $(ubuntuPool)
     demands:
     - ImageOverride -equals ${{ parameters.vmImage }}
 
@@ -72,12 +80,6 @@ jobs:
         **/*
       scanningService: 'pwshEsrpScanning'
 
-- template: ./Approval.yml
-  parameters:
-    displayName: 'Approve ${{ parameters.channel }}-${{ parameters.release }} upload'
-    instructions: 'Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"'
-    jobName: 'push_approval'
-
 - job: push
   dependsOn:
   - push_approval
@@ -86,7 +88,7 @@ jobs:
   displayName: Push to ${{ parameters.release }}
 
   pool:
-    name: 1es
+    name: $(ubuntuPool)
     demands:
     - ImageOverride -equals ${{ parameters.vmImage }}
 
