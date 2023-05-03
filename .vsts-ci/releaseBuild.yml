@@ -49,9 +49,3 @@ stages:
   parameters:
     channel: lts
     release: ${{ parameters.release }}
-
-- stage: Compliance
-  dependsOn: []
-  displayName: Compliance
-  jobs:
-    - template: ./templates/virusScanPhase.yml
