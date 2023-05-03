@@ -17,8 +17,6 @@ jobs:
 
 - job: scan
   displayName: Scan ${{ parameters.channel }}
-  dependsOn:
-    - push_approval
 
   pool:
     name: $(ubuntuPool)
@@ -80,6 +78,7 @@ jobs:
   - pwsh: |
       Write-Verbose "tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}" -Verbose
       tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}
+      Write-Host "##vso[artifact.upload containerfolder=$(channel);artifactname=$(channel)]${env:SNAP_TARGZ}"
     displayName: tar the snap contents from the r/w copy
 
   - template: EsrpScan.yml@ComplianceRepo
