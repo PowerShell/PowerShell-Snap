@@ -17,8 +17,6 @@ jobs:
 
 - job: scan
   displayName: Scan ${{ parameters.channel }}
-  dependsOn:
-    - push_approval
 
   pool:
     name: $(ubuntuPool)
@@ -32,6 +30,8 @@ jobs:
       value: $(Agent.TempDirectory)/pwshSnap
     - name: SNAP_COPY
       value: $(Agent.TempDirectory)/pwshSnapCopy
+    - name: SNAP_TARGZ
+      value: $(Agent.TempDirectory)/pwshSnap.tar.gz
 
 
   steps:
@@ -75,11 +75,17 @@ jobs:
       get-childitem -recurse $readWriteCopy
     displayName: Copy to read/write fs
 
+  - pwsh: |
+      Write-Verbose "tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}" -Verbose
+      tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}
+      Write-Host "##vso[artifact.upload containerfolder=$(channel);artifactname=$(channel)]${env:SNAP_TARGZ}"
+    displayName: tar the snap contents from the r/w copy
+
   - template: EsrpScan.yml@ComplianceRepo
     parameters:
-      scanPath: $(SNAP_COPY)
+      scanPath: $(Agent.TempDirectory)
       pattern: |
-        **/*
+        **/*.tar.gz
       scanningService: 'pwshEsrpScanning'
 
 - job: push
