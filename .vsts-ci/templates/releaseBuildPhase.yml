@@ -93,6 +93,11 @@ jobs:
     condition: and(succeeded(), ne(variables['$(channel)'],'no'))
 
   - powershell: |
+      Write-Host "##vso[artifact.upload containerfolder=$(channel)-logs;artifactname=$(channel)-log]/home/vsts/.local/state/snapcraft/log/*"
+    displayName: 'Install $(channel) snap'
+    condition: always()
+
+  - powershell: |
         sudo snap install $(PS_SNAP_PATH) --classic --dangerous
     displayName: 'Install $(channel) snap'
     condition: succeeded()
