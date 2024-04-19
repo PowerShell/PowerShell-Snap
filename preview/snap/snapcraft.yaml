@@ -62,7 +62,7 @@ parts:
       fi
       container=$(echo v$version| sed 's/\./-/g')
       echo "getting powershell $version - $container"
-# These urls are subject to change.
+      # These urls are subject to change.
       case "$SNAPCRAFT_ARCH_TRIPLET" in
         aarch64-linux-gnu)
           curl -L -o powershell.tar.gz https://pscoretestdata.blob.core.windows.net/$container/powershell-$version-linux-arm64.tar.gz ;;
