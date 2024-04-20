@@ -163,6 +163,6 @@ jobs:
     - powershell: |
         $artifactName = "drop_build_$(channel)_build_$(channel)_targz"
         Write-Host "##vso[artifact.upload containerfolder=${artifactName};artifactname=${artifactName}]${env:SNAP_TARGZ}"
-      displayName: Publish Artifact for custom Job - $(channel)
+      displayName: Publish tar.gz Artifact - $(channel)
       condition: succeeded()
       continueOnError: true
