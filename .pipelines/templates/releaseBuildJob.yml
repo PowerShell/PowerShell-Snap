@@ -6,6 +6,9 @@ parameters:
 
 jobs:
 
+- checkout: self
+  lfs: false
+
 - job: build_${{ parameters.channel }}
   displayName: Build ${{ parameters.channel }}
   variables:
