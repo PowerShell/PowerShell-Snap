@@ -9,7 +9,7 @@ stages:
   displayName: Build - ${{ parameters.channel }}
   dependsOn: []
   jobs:
-  - template: ./releaseBuildPhase.yml
+  - template: ./releaseBuildJob.yml
     parameters:
       channel: ${{ parameters.channel }}
 
@@ -17,7 +17,7 @@ stages:
   displayName: Push - ${{ parameters.channel }} to ${{ parameters.release }}
   dependsOn: build_${{ parameters.channel }}
   jobs:
-  - template: ./pushPhase.yml
+  - template: ./pushJob.yml
     parameters:
       channel: ${{ parameters.channel }}
       release: ${{ parameters.release }}

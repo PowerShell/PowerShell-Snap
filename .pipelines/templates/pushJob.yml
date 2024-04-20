@@ -87,6 +87,10 @@ jobs:
 
   pool:
     type: linux
+    isCustom: true
+    name: $(ubuntuPool)
+    demands:
+      - ImageOverride -equals PSMMSUbuntu20.04-Secure
 
   variables:
     - name: ReleaseTag
