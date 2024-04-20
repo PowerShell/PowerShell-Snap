@@ -33,53 +33,53 @@ jobs:
 
 
   steps:
-  - checkout: self
-    path: $(repoFolder)
-    lfs: false
+    - checkout: self
+      path: $(repoFolder)
+      lfs: false
 
-  - template: ./createOutputDirectory-linux.yml
+    - template: ./createOutputDirectory-linux.yml
 
-  - task: DownloadPipelineArtifact@2
-    displayName: 'Download build files'
-    inputs:
-      targetPath: $(signOutPath)
-      artifact: drop_build_$(channel)_build_$(channel)
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download build files'
+      inputs:
+        targetPath: $(signOutPath)
+        artifact: drop_build_$(channel)_build_$(channel)
 
-  - pwsh: |
-      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
-      if($snaps.Count -gt 1)
-      {
-        $snaps | out-string -width 100 | Write-Verbose -verbose
-        Write-Error "***More than one snap found***" -errorAction stop
-      }
-      $snap = $snaps[0].fullname
-      $mount = $env:SNAP_MOUNT
-      $null = new-item -Path $mount -ItemType Directory -Force
-      Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
-      sudo mount -t squashfs -o ro $snap $mount
-      Write-Verbose -Verbose "get-childitem -recurse $mount"
-      get-childitem -recurse $mount
-    displayName: Unsquash Snap and capture contents
+    - pwsh: |
+        $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+        if($snaps.Count -gt 1)
+        {
+          $snaps | out-string -width 100 | Write-Verbose -verbose
+          Write-Error "***More than one snap found***" -errorAction stop
+        }
+        $snap = $snaps[0].fullname
+        $mount = $env:SNAP_MOUNT
+        $null = new-item -Path $mount -ItemType Directory -Force
+        Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
+        sudo mount -t squashfs -o ro $snap $mount
+        Write-Verbose -Verbose "get-childitem -recurse $mount"
+        get-childitem -recurse $mount
+      displayName: Unsquash Snap and capture contents
 
-  # Copy to read write filesystem because scan tries to write back to this folder.
-  - pwsh: |
-      $mount = $env:SNAP_MOUNT
-      $readWriteCopy = $env:SNAP_COPY
-      Write-Verbose -Verbose "mount: $mount; copy: $readWriteCopy"
-      $null = new-item -Path $readWriteCopy -ItemType Directory -Force
-      $filesToExclude = Get-ChildItem -Path $mount -Recurse | Where-Object Attributes -match reparsepoint
-      $exclude = @()
-      $exclude += $filesToExclude | ForEach-Object { "$($_.Name)" + "*" }
-      Copy-Item -Path $mount -Destination $readWriteCopy\ -Exclude $exclude -Force -Recurse -Verbose
-      Write-Verbose -Verbose "get-childitem -recurse $readWriteCopy"
-      get-childitem -recurse $readWriteCopy
-    displayName: Copy to read/write fs
+    # Copy to read write filesystem because scan tries to write back to this folder.
+    - pwsh: |
+        $mount = $env:SNAP_MOUNT
+        $readWriteCopy = $env:SNAP_COPY
+        Write-Verbose -Verbose "mount: $mount; copy: $readWriteCopy"
+        $null = new-item -Path $readWriteCopy -ItemType Directory -Force
+        $filesToExclude = Get-ChildItem -Path $mount -Recurse | Where-Object Attributes -match reparsepoint
+        $exclude = @()
+        $exclude += $filesToExclude | ForEach-Object { "$($_.Name)" + "*" }
+        Copy-Item -Path $mount -Destination $readWriteCopy\ -Exclude $exclude -Force -Recurse -Verbose
+        Write-Verbose -Verbose "get-childitem -recurse $readWriteCopy"
+        get-childitem -recurse $readWriteCopy
+      displayName: Copy to read/write fs
 
-  - pwsh: |
-      Write-Verbose "tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}" -Verbose
-      tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}
-      copy-item ${env:SNAP_TARGZ} -destination $(ob_outputDirectory)/ -verbose
-    displayName: tar the snap contents from the r/w copy
+    - pwsh: |
+        Write-Verbose "tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}" -Verbose
+        tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}
+        copy-item ${env:SNAP_TARGZ} -destination $(ob_outputDirectory)/ -verbose
+      displayName: tar the snap contents from the r/w copy
 
 - job: push
   dependsOn:
@@ -105,6 +105,9 @@ jobs:
       value: '$(Build.ArtifactStagingDirectory)/out'
 
   steps:
+    - checkout: self
+      lfs: false
+
     - template: ./createOutputDirectory-linux.yml
 
     - task: DownloadPipelineArtifact@2
