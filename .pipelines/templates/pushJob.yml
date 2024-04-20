@@ -37,6 +37,8 @@ jobs:
     path: $(repoFolder)
     lfs: false
 
+  - template: ./createOutputDirectory-linux.yml
+
   - task: DownloadPipelineArtifact@2
     displayName: 'Download build files'
     inputs:
@@ -103,6 +105,8 @@ jobs:
       value: '$(Build.ArtifactStagingDirectory)/out'
 
   steps:
+    - template: ./createOutputDirectory-linux.yml
+
     - task: DownloadPipelineArtifact@2
       displayName: 'Download build files'
       inputs:

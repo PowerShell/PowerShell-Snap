@@ -22,6 +22,8 @@ jobs:
       - ImageOverride -equals PSMMSUbuntu20.04-Secure
 
   steps:
+    - template: ./createOutputDirectory-linux.yml
+
     - powershell: |
           sudo chown root:root /
       displayName: 'Make sure root owns root'
