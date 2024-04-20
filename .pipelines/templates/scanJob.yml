@@ -37,6 +37,10 @@ jobs:
         artifact: drop_build_$(channel)_build_$(channel)
 
     - pwsh: |
+        sudo tdnf -y install squashfs-tools
+      displayName: Install squashfs-tools
+
+    - pwsh: |
         $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
         if($snaps.Count -gt 1)
         {
