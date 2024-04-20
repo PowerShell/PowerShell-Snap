@@ -13,9 +13,18 @@ stages:
     parameters:
       channel: ${{ parameters.channel }}
 
-- stage: Push_${{ parameters.channel }}
+- stage: scan_${{ parameters.channel }}
   displayName: Push - ${{ parameters.channel }} to ${{ parameters.release }}
   dependsOn: build_${{ parameters.channel }}
+  jobs:
+  - template: ./scanJob.yml
+    parameters:
+      channel: ${{ parameters.channel }}
+      release: ${{ parameters.release }}
+
+- stage: Push_${{ parameters.channel }}
+  displayName: Push - ${{ parameters.channel }} to ${{ parameters.release }}
+  dependsOn: scan_${{ parameters.channel }}
   jobs:
   - template: ./pushJob.yml
     parameters:
