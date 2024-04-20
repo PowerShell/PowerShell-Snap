@@ -19,7 +19,8 @@ parameters:
 jobs:
     - job: ${{ parameters.jobName }}
       displayName: ${{ parameters.displayName }}
-      pool: server
+      pool:
+        type: agentless
       timeoutInMinutes: 4320 # job times out in 3 days
       steps:
       - task: ManualValidation@0
