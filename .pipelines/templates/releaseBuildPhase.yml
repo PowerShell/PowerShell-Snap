@@ -1,0 +1,117 @@
+parameters:
+  - name: channel
+    default: 'stable'
+  - name: test
+    default: Yes
+
+jobs:
+
+- job: build_${{ parameters.channel }}
+  displayName: Build ${{ parameters.channel }}
+  variables:
+    - name: channel
+      value: ${{ parameters.channel }}
+    - name: ob_outputDirectory
+      value: '$(Build.ArtifactStagingDirectory)/out'
+
+  pool:
+    type: linux
+
+  steps:
+
+  - powershell: |
+        sudo chown root:root /
+    displayName: 'Make sure root owns root'
+    condition: succeeded()
+
+  - powershell: 'dir env:'
+    displayName: 'Capture Environment'
+
+  - powershell: |
+        $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
+        Write-Verbose -Verbose -Message "using Channel $channel"
+        sudo snap install snapcraft --classic "--channel=$channel"
+    displayName: Install snapcraft
+    condition: succeeded()
+    retryCountOnTaskFailure: 2
+
+  - bash: |
+        sudo apt update
+    displayName: Apt Update
+    condition: succeeded()
+
+  - powershell: |
+      switch('$(channel)') {
+        'stable' {
+            cd stable
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+          'lts' {
+            cd lts
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+          'preview' {
+            cd preview
+            $message = "vso[task.setvariable variable=PS_SNAP_EXEC;]powershell-preview"
+            Write-Host $message
+            Write-Host "##$message"
+          }
+        default {
+          throw "Unknown channel: '$(channel)'"
+        }
+      }
+
+      Write-Host "Building snap..."
+      # destructive-mode leaves files and packages on the machine
+      # This is okay because Azure DevOps Hosted machines are ephemeral.
+      Write-Verbose "snapcraft version: $(snapcraft --version)" -Verbose
+      snapcraft snap --debug --destructive-mode
+      Write-Host "finding snap..."
+      $snap = Get-ChildItem "*.snap" -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty fullname -ErrorAction SilentlyContinue
+      if(!$snap)
+      {
+        throw "snap build failed"
+      }
+      else
+      {
+        $message = "vso[task.setvariable variable=PS_SNAP_PATH;]$snap"
+        Write-Host $message
+        Write-Host "##$message"
+      }
+    displayName: Build snap $(channel)
+    condition: and(succeeded(), ne(variables['$(channel)'],'no'))
+
+  - powershell: |
+      Get-ChildItem env:
+    displayName: Capture env
+    condition: always()
+
+  - powershell: |
+      Get-ChildItem /home/vsts/.local/state/snapcraft/log/*.log | foreach-object {
+        $name = $_.fullname
+        Write-Verbose -Verbose "uploading '$name'"
+        Write-Host "##vso[artifact.upload containerfolder=$(channel)-logs;artifactname=$(channel)-log]$name"
+      }
+    displayName: 'Upload $(channel) build log'
+    condition: always()
+
+  - powershell: |
+        sudo snap install $(PS_SNAP_PATH) --classic --dangerous
+    displayName: 'Install $(channel) snap'
+    condition: succeeded()
+
+  - powershell: |
+        &"$(PS_SNAP_EXEC)" -nologo -c '$psversiontable'
+    displayName: 'Test $(channel) snap'
+    condition: and(succeeded(), eq('${{ parameters.test }}','Yes'))
+
+  # Uploads any packages as an artifact
+  - powershell: |
+      Copy-Item $(PS_SNAP_PATH) -Destination $(ob_outputDirectory)/ -verbose
+    displayName: Copy Artifact to output directory - $(channel)
+    condition: succeeded()
+    continueOnError: true

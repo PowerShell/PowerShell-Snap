@@ -1,0 +1,179 @@
+parameters:
+  - name: channel
+    type: string
+  - name: release
+    default: 'private'
+
+jobs:
+- template: ./Approval.yml
+  parameters:
+    displayName: 'Approve ${{ parameters.channel }}-${{ parameters.release }} upload'
+    instructions: |
+      Only approve one channel at a time or malware scanning will fail.
+      Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"
+    jobName: 'push_approval'
+
+- job: scan
+  displayName: Scan ${{ parameters.channel }}
+
+  pool:
+    type: linux
+
+  variables:
+    - name: channel
+      value: ${{ parameters.channel }}
+    - name: SNAP_MOUNT
+      value: $(Agent.TempDirectory)/pwshSnap
+    - name: SNAP_COPY
+      value: $(Agent.TempDirectory)/pwshSnapCopy
+    - name: SNAP_TARGZ
+      value: $(Agent.TempDirectory)/pwshSnap.tar.gz
+    - name: ob_outputDirectory
+      value: '$(Build.ArtifactStagingDirectory)/out'
+
+
+  steps:
+  - checkout: self
+    path: $(repoFolder)
+  - checkout: ComplianceRepo
+
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download build files'
+    inputs:
+      targetPath: $(signOutPath)
+      artifact: drop_build_$(channel)_build_$(channel)
+
+  - pwsh: |
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+      if($snaps.Count -gt 1)
+      {
+        $snaps | out-string -width 100 | Write-Verbose -verbose
+        Write-Error "***More than one snap found***" -errorAction stop
+      }
+      $snap = $snaps[0].fullname
+      $mount = $env:SNAP_MOUNT
+      $null = new-item -Path $mount -ItemType Directory -Force
+      Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
+      sudo mount -t squashfs -o ro $snap $mount
+      Write-Verbose -Verbose "get-childitem -recurse $mount"
+      get-childitem -recurse $mount
+    displayName: Unsquash Snap and capture contents
+
+  # Copy to read write filesystem because scan tries to write back to this folder.
+  - pwsh: |
+      $mount = $env:SNAP_MOUNT
+      $readWriteCopy = $env:SNAP_COPY
+      Write-Verbose -Verbose "mount: $mount; copy: $readWriteCopy"
+      $null = new-item -Path $readWriteCopy -ItemType Directory -Force
+      $filesToExclude = Get-ChildItem -Path $mount -Recurse | Where-Object Attributes -match reparsepoint
+      $exclude = @()
+      $exclude += $filesToExclude | ForEach-Object { "$($_.Name)" + "*" }
+      Copy-Item -Path $mount -Destination $readWriteCopy\ -Exclude $exclude -Force -Recurse -Verbose
+      Write-Verbose -Verbose "get-childitem -recurse $readWriteCopy"
+      get-childitem -recurse $readWriteCopy
+    displayName: Copy to read/write fs
+
+  - pwsh: |
+      Write-Verbose "tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}" -Verbose
+      tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}
+      copy-item ${env:SNAP_TARGZ} -destination $(ob_outputDirectory)/ -verbose
+    displayName: tar the snap contents from the r/w copy
+
+- job: push
+  dependsOn:
+  - push_approval
+  - scan
+
+  displayName: Push to ${{ parameters.release }}
+
+  pool:
+    name: $(ubuntuPool)
+    demands:
+    - ImageOverride -equals ${{ parameters.vmImage }}
+
+  variables:
+    - name: ReleaseTag
+      value: edge/default
+    - group: SnapLogin
+    - name: channel
+      value: ${{ parameters.channel }}
+    - name: ob_outputDirectory
+      value: '$(Build.ArtifactStagingDirectory)/out'
+
+  steps:
+  - checkout: self
+
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download build files'
+    inputs:
+      targetPath: $(signOutPath)
+      artifact: drop_build_$(channel)_build_$(channel)
+
+  - pwsh: |
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+      if($snaps.Count -gt 1)
+      {
+        $snaps | out-string -width 100 | Write-Verbose -verbose
+        Write-Error "***More than one snap found***" -errorAction stop
+      }
+    displayName: Verify that only one snap was downloaded
+
+  - pwsh: |
+      [string]$Branch=$env:BUILD_SOURCEBRANCH
+      $branchOnly = $Branch -replace '^refs/heads/';
+      $branchOnly = $branchOnly -replace '[_\-]'
+
+      if('${{ parameters.release }}' -eq 'private') {
+        if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
+        {
+            Write-verbose "release branch: $branchOnly" -verbose
+            $generatedBranch = ([guid]::NewGuid()).ToString().Replace('-','')
+            $releaseTag = "edge/$generatedBranch"
+        }
+        else
+        {
+            Write-verbose "non-release branch" -verbose
+            # Branch is named <previewname>
+            $releaseTag = "edge/$branchOnly"
+            $releaseTag += ([guid]::NewGuid()).ToString().Replace('-','')
+        }
+      } else {
+        $releaseTag = "${{ parameters.release }}"
+      }
+
+      $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
+      Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
+      Write-Host -Object "##$vstsCommandString"
+    displayName: Set ReleaseTag Variable
+
+  - pwsh: |
+        sudo chown root:root /
+    displayName: 'Make sure root owns root'
+    condition: succeeded()
+
+  - pwsh: |
+        $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
+        Write-Verbose -Verbose -Message "using Channel $channel"
+        sudo snap install snapcraft --classic "--channel=$channel"
+    condition: succeeded()
+    displayName: 'Install snapcraft'
+    retryCountOnTaskFailure: 2
+
+  - pwsh: |
+      $track = 'latest'
+      if('$(channel)' -eq 'lts')
+      {
+        $track = 'lts'
+      }
+
+      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
+
+      foreach($snap in $snaps)
+      {
+        Write-Verbose -Verbose -Message "Uploading $snap to $track/$(ReleaseTag)"
+        snapcraft upload --release "$track/$(ReleaseTag)" $snap
+      }
+    displayName: 'snapcraft upload'
+    retryCountOnTaskFailure: 1
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: $(SNAPCRAFT_STORE_CREDENTIALS)

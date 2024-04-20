@@ -1,0 +1,23 @@
+parameters:
+  - name: channel
+    default: ''
+  - name: release
+    default: 'private'
+
+stages:
+- stage: build_${{ parameters.channel }}
+  displayName: Build - ${{ parameters.channel }}
+  dependsOn: []
+  jobs:
+  - template: ./releaseBuildPhase.yml
+    parameters:
+      channel: ${{ parameters.channel }}
+
+- stage: Push_${{ parameters.channel }}
+  displayName: Push - ${{ parameters.channel }} to ${{ parameters.release }}
+  dependsOn: build_${{ parameters.channel }}
+  jobs:
+  - template: ./pushPhase.yml
+    parameters:
+      channel: ${{ parameters.channel }}
+      release: ${{ parameters.release }}
