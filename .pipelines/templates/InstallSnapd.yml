@@ -1,4 +1,4 @@
-jobs:
+steps:
 
   - bash: |
         sudo apt update
