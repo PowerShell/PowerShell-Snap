@@ -22,10 +22,6 @@ jobs:
       - ImageOverride -equals PSMMSUbuntu20.04-Secure
 
   steps:
-    - checkout: self
-      lfs: false
-
-
     - powershell: |
           sudo chown root:root /
       displayName: 'Make sure root owns root'

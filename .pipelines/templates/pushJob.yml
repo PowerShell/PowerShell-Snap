@@ -81,8 +81,8 @@ jobs:
 
 - job: push
   dependsOn:
-  - push_approval
-  - scan
+    - push_approval
+    - scan
 
   displayName: Push to ${{ parameters.release }}
 
@@ -103,82 +103,79 @@ jobs:
       value: '$(Build.ArtifactStagingDirectory)/out'
 
   steps:
-  - checkout: self
-    lfs: false
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download build files'
+      inputs:
+        targetPath: $(signOutPath)
+        artifact: drop_build_$(channel)_build_$(channel)
 
-  - task: DownloadPipelineArtifact@2
-    displayName: 'Download build files'
-    inputs:
-      targetPath: $(signOutPath)
-      artifact: drop_build_$(channel)_build_$(channel)
-
-  - pwsh: |
-      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
-      if($snaps.Count -gt 1)
-      {
-        $snaps | out-string -width 100 | Write-Verbose -verbose
-        Write-Error "***More than one snap found***" -errorAction stop
-      }
-    displayName: Verify that only one snap was downloaded
-
-  - pwsh: |
-      [string]$Branch=$env:BUILD_SOURCEBRANCH
-      $branchOnly = $Branch -replace '^refs/heads/';
-      $branchOnly = $branchOnly -replace '[_\-]'
-
-      if('${{ parameters.release }}' -eq 'private') {
-        if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
+    - pwsh: |
+        $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+        if($snaps.Count -gt 1)
         {
-            Write-verbose "release branch: $branchOnly" -verbose
-            $generatedBranch = ([guid]::NewGuid()).ToString().Replace('-','')
-            $releaseTag = "edge/$generatedBranch"
+          $snaps | out-string -width 100 | Write-Verbose -verbose
+          Write-Error "***More than one snap found***" -errorAction stop
         }
-        else
+      displayName: Verify that only one snap was downloaded
+
+    - pwsh: |
+        [string]$Branch=$env:BUILD_SOURCEBRANCH
+        $branchOnly = $Branch -replace '^refs/heads/';
+        $branchOnly = $branchOnly -replace '[_\-]'
+
+        if('${{ parameters.release }}' -eq 'private') {
+          if($branchOnly -eq 'master' -or $branchOnly -like '*dailytest*')
+          {
+              Write-verbose "release branch: $branchOnly" -verbose
+              $generatedBranch = ([guid]::NewGuid()).ToString().Replace('-','')
+              $releaseTag = "edge/$generatedBranch"
+          }
+          else
+          {
+              Write-verbose "non-release branch" -verbose
+              # Branch is named <previewname>
+              $releaseTag = "edge/$branchOnly"
+              $releaseTag += ([guid]::NewGuid()).ToString().Replace('-','')
+          }
+        } else {
+          $releaseTag = "${{ parameters.release }}"
+        }
+
+        $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
+        Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
+        Write-Host -Object "##$vstsCommandString"
+      displayName: Set ReleaseTag Variable
+
+    - pwsh: |
+          sudo chown root:root /
+      displayName: 'Make sure root owns root'
+      condition: succeeded()
+
+    - template: ./InstallSnapd.yml
+
+    - pwsh: |
+          $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
+          Write-Verbose -Verbose -Message "using Channel $channel"
+          sudo snap install snapcraft --classic "--channel=$channel"
+      condition: succeeded()
+      displayName: 'Install snapcraft'
+      retryCountOnTaskFailure: 2
+
+    - pwsh: |
+        $track = 'latest'
+        if('$(channel)' -eq 'lts')
         {
-            Write-verbose "non-release branch" -verbose
-            # Branch is named <previewname>
-            $releaseTag = "edge/$branchOnly"
-            $releaseTag += ([guid]::NewGuid()).ToString().Replace('-','')
+          $track = 'lts'
         }
-      } else {
-        $releaseTag = "${{ parameters.release }}"
-      }
 
-      $vstsCommandString = "vso[task.setvariable variable=ReleaseTag]$releaseTag"
-      Write-Verbose -Message "setting ReleaseTag to $releaseTag" -Verbose
-      Write-Host -Object "##$vstsCommandString"
-    displayName: Set ReleaseTag Variable
+        $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
 
-  - pwsh: |
-        sudo chown root:root /
-    displayName: 'Make sure root owns root'
-    condition: succeeded()
-
-  - template: ./InstallSnapd.yml
-
-  - pwsh: |
-        $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
-        Write-Verbose -Verbose -Message "using Channel $channel"
-        sudo snap install snapcraft --classic "--channel=$channel"
-    condition: succeeded()
-    displayName: 'Install snapcraft'
-    retryCountOnTaskFailure: 2
-
-  - pwsh: |
-      $track = 'latest'
-      if('$(channel)' -eq 'lts')
-      {
-        $track = 'lts'
-      }
-
-      $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
-
-      foreach($snap in $snaps)
-      {
-        Write-Verbose -Verbose -Message "Uploading $snap to $track/$(ReleaseTag)"
-        snapcraft upload --release "$track/$(ReleaseTag)" $snap
-      }
-    displayName: 'snapcraft upload'
-    retryCountOnTaskFailure: 1
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: $(SNAPCRAFT_STORE_CREDENTIALS)
+        foreach($snap in $snaps)
+        {
+          Write-Verbose -Verbose -Message "Uploading $snap to $track/$(ReleaseTag)"
+          snapcraft upload --release "$track/$(ReleaseTag)" $snap
+        }
+      displayName: 'snapcraft upload'
+      retryCountOnTaskFailure: 1
+      env:
+        SNAPCRAFT_STORE_CREDENTIALS: $(SNAPCRAFT_STORE_CREDENTIALS)

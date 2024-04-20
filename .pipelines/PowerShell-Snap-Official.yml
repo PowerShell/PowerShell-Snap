@@ -47,6 +47,13 @@ resources:
 extends:
   template: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
   parameters:
+    git:
+      fetchDepth: 1
+      # windows only feature
+      #longpaths: true
+      retryCount: 3
+      # we don't use this and some of our agents doesn't have the feature installed
+      lfs: false
     cloudvault: # https://aka.ms/obpipelines/cloudvault
       enabled: false # set to true to enable cloudvault
       runmode: stage # linux can run CloudVault upload as a separate stage
