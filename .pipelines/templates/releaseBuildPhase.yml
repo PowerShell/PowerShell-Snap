@@ -24,6 +24,8 @@ jobs:
     displayName: 'Make sure root owns root'
     condition: succeeded()
 
+  - template: ./InstallSnapd.yml
+
   - powershell: 'dir env:'
     displayName: 'Capture Environment'
 
@@ -35,10 +37,7 @@ jobs:
     condition: succeeded()
     retryCountOnTaskFailure: 2
 
-  - bash: |
-        sudo apt update
-    displayName: Apt Update
-    condition: succeeded()
+
 
   - powershell: |
       switch('$(channel)') {

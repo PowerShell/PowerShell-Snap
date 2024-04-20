@@ -148,6 +148,8 @@ jobs:
     displayName: 'Make sure root owns root'
     condition: succeeded()
 
+  - template: ./InstallSnapd.yml
+
   - pwsh: |
         $channel = (Get-Content ./snapcraftConfig.json | ConvertFrom-Json).channel
         Write-Verbose -Verbose -Message "using Channel $channel"
