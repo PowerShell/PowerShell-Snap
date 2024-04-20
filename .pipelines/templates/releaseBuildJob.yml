@@ -114,9 +114,17 @@ jobs:
       displayName: 'Test $(channel) snap'
       condition: and(succeeded(), eq('${{ parameters.test }}','Yes'))
 
-    # Uploads any packages as an artifact
+    # This is what we would need to do if this wasn't a custom job
     - powershell: |
         Copy-Item $(PS_SNAP_PATH) -Destination $(ob_outputDirectory)/ -verbose
-      displayName: Copy Artifact to output directory - $(channel)
+      displayName: Copy Artifact to OneBranch Job output directory - $(channel)
+      condition: succeeded()
+      continueOnError: true
+
+    # Uploads any packages as an artifact
+    - powershell: |
+        $artifactName = "drop_build_$(channel)_build_$(channel)"
+        Write-Host "##vso[artifact.upload containerfolder=${artifactName};artifactname=${artifactName}]$(PS_SNAP_PATH)"
+      displayName: Publish Artifact for custom Job - $(channel)
       condition: succeeded()
       continueOnError: true
