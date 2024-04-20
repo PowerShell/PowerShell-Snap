@@ -13,6 +13,12 @@ jobs:
       value: ${{ parameters.channel }}
     - name: ob_outputDirectory
       value: '$(Build.ArtifactStagingDirectory)/out'
+    - name: SNAP_MOUNT
+      value: $(Agent.TempDirectory)/pwshSnap
+    - name: SNAP_COPY
+      value: $(Agent.TempDirectory)/pwshSnapCopy
+    - name: SNAP_TARGZ
+      value: $(Agent.TempDirectory)/pwshSnap.tar.gz
 
   pool:
     type: linux
@@ -125,6 +131,44 @@ jobs:
     - powershell: |
         $artifactName = "drop_build_$(channel)_build_$(channel)"
         Write-Host "##vso[artifact.upload containerfolder=${artifactName};artifactname=${artifactName}]$(PS_SNAP_PATH)"
+      displayName: Publish Artifact for custom Job - $(channel)
+      condition: succeeded()
+      continueOnError: true
+
+    - pwsh: |
+        $snap = $(PS_SNAP_PATH)
+        $mount = $env:SNAP_MOUNT
+        $null = new-item -Path $mount -ItemType Directory -Force
+        Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
+        sudo mount -t squashfs -o ro $snap $mount
+        Write-Verbose -Verbose "get-childitem -recurse $mount"
+        get-childitem -recurse $mount
+      displayName: Unsquash Snap and capture contents
+
+    # Copy to read write filesystem because scan tries to write back to this folder.
+    - pwsh: |
+        $mount = $env:SNAP_MOUNT
+        $readWriteCopy = $env:SNAP_COPY
+        Write-Verbose -Verbose "mount: $mount; copy: $readWriteCopy"
+        $null = new-item -Path $readWriteCopy -ItemType Directory -Force
+        $filesToExclude = Get-ChildItem -Path $mount -Recurse | Where-Object Attributes -match reparsepoint
+        $exclude = @()
+        $exclude += $filesToExclude | ForEach-Object { "$($_.Name)" + "*" }
+        Copy-Item -Path $mount -Destination $readWriteCopy\ -Exclude $exclude -Force -Recurse -Verbose
+        Write-Verbose -Verbose "get-childitem -recurse $readWriteCopy"
+        get-childitem -recurse $readWriteCopy
+      displayName: Copy to read/write fs
+
+    - pwsh: |
+        Write-Verbose "tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}" -Verbose
+        tar -czf ${env:SNAP_TARGZ} ${env:SNAP_COPY}
+        copy-item ${env:SNAP_TARGZ} -destination $(ob_outputDirectory)/ -verbose
+      displayName: tar the snap contents from the r/w copy
+
+    # Uploads any packages as an artifact
+    - powershell: |
+        $artifactName = "drop_build_$(channel)_build_$(channel)_targz"
+        Write-Host "##vso[artifact.upload containerfolder=${artifactName};artifactname=${artifactName}]${env:SNAP_TARGZ}"
       displayName: Publish Artifact for custom Job - $(channel)
       condition: succeeded()
       continueOnError: true
