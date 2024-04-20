@@ -77,7 +77,7 @@ extends:
         enabled: true
       asyncSdl: # https://aka.ms/obpipelines/asyncsdl
         enabled: true
-        forStages: [build_lts, build_stable, build_preview, Push_lts, Push_stable, Push_preview]
+        forStages: [scan_lts, scan_stable, scan_preview]
         credscan:
           enabled: true
           scanFolder:  $(Build.SourcesDirectory)

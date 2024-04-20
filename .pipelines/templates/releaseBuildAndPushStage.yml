@@ -14,7 +14,7 @@ stages:
       channel: ${{ parameters.channel }}
 
 - stage: scan_${{ parameters.channel }}
-  displayName: Scan - ${{ parameters.channel }} to ${{ parameters.release }}
+  displayName: SDL - ${{ parameters.channel }} to ${{ parameters.release }}
   dependsOn: build_${{ parameters.channel }}
   jobs:
   - template: ./scanJob.yml

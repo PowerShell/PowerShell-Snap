@@ -24,10 +24,6 @@ jobs:
 
 
   steps:
-    - checkout: self
-      path: $(repoFolder)
-      lfs: false
-
     - template: ./createOutputDirectory-linux.yml
 
     - task: DownloadPipelineArtifact@2
