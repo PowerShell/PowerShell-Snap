@@ -20,7 +20,6 @@ stages:
   - template: ./scanJob.yml
     parameters:
       channel: ${{ parameters.channel }}
-      release: ${{ parameters.release }}
 
 - stage: Push_${{ parameters.channel }}
   displayName: Push - ${{ parameters.channel }} to ${{ parameters.release }}
