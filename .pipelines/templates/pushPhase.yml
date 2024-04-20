@@ -87,9 +87,7 @@ jobs:
   displayName: Push to ${{ parameters.release }}
 
   pool:
-    name: $(ubuntuPool)
-    demands:
-    - ImageOverride -equals ${{ parameters.vmImage }}
+    type: linux
 
   variables:
     - name: ReleaseTag
