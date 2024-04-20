@@ -130,7 +130,7 @@ jobs:
       continueOnError: true
 
     - pwsh: |
-        $snap = $(PS_SNAP_PATH)
+        $snap = '$(PS_SNAP_PATH)'
         $mount = $env:SNAP_MOUNT
         $null = new-item -Path $mount -ItemType Directory -Force
         Write-Verbose -Verbose "sudo mount -t squashfs -o ro $snap $mount"
