@@ -21,7 +21,8 @@ jobs:
       value: $(Agent.TempDirectory)/pwshSnap.tar.gz
     - name: ob_outputDirectory
       value: '$(Build.ArtifactStagingDirectory)/out'
-
+    - name: DOWNLOAD_DIRECTORY
+      value: '$(Build.ArtifactStagingDirectory)/down'
 
   steps:
     - template: ./createOutputDirectory-linux.yml
@@ -29,7 +30,7 @@ jobs:
     - task: DownloadPipelineArtifact@2
       displayName: 'Download build files'
       inputs:
-        targetPath: $(signOutPath)
+        targetPath: $(DOWNLOAD_DIRECTORY)
         artifact: drop_build_$(channel)_build_$(channel)
 
     - pwsh: |
@@ -37,7 +38,7 @@ jobs:
       displayName: Install squashfs-tools
 
     - pwsh: |
-        $snaps = Get-ChildItem $(System.ArtifactsDirectory)/*.snap -recurse -File
+        $snaps = Get-ChildItem $(DOWNLOAD_DIRECTORY)/*.snap -recurse -File
         if($snaps.Count -gt 1)
         {
           $snaps | out-string -width 100 | Write-Verbose -verbose
