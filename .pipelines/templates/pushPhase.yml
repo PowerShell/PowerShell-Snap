@@ -35,7 +35,6 @@ jobs:
   steps:
   - checkout: self
     path: $(repoFolder)
-  - checkout: ComplianceRepo
 
   - task: DownloadPipelineArtifact@2
     displayName: 'Download build files'
