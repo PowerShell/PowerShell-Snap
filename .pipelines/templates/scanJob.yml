@@ -28,11 +28,12 @@ jobs:
         artifact: drop_build_$(channel)_build_$(channel)_targz
 
     - pwsh: |
-        $snaps = Get-ChildItem $(DOWNLOAD_DIRECTORY)/*.snap -recurse -File | Select-Object -ExpandProperty FullName
+        $targzs = Get-ChildItem $(DOWNLOAD_DIRECTORY)/*.tar.gz -recurse -File | Select-Object -ExpandProperty FullName
 
-        foreach($snap in $snaps)
+        foreach($targz in $targzs)
         {
+            Write-Verbose -Verbose "Extracting $targz"
             $target = $(ob_outputDirectory)
-            tar -xvf $snap -C $target
+            tar -xvf $targz -C $target
         }
       displayName: 'Extract Tar.Gz'
