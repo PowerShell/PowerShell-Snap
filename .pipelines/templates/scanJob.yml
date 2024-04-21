@@ -33,7 +33,7 @@ jobs:
         foreach($targz in $targzs)
         {
             Write-Verbose -Verbose "Extracting $targz"
-            $target = $(ob_outputDirectory)
+            $target = '$(ob_outputDirectory)'
             tar -xvf $targz -C $target
         }
       displayName: 'Extract Tar.Gz'
