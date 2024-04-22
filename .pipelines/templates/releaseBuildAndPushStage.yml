@@ -1,0 +1,31 @@
+parameters:
+  - name: channel
+    default: ''
+  - name: release
+    default: 'private'
+
+stages:
+- stage: build_${{ parameters.channel }}
+  displayName: Build - ${{ parameters.channel }}
+  dependsOn: []
+  jobs:
+  - template: ./releaseBuildJob.yml
+    parameters:
+      channel: ${{ parameters.channel }}
+
+- stage: scan_${{ parameters.channel }}
+  displayName: SDL - ${{ parameters.channel }}
+  dependsOn: build_${{ parameters.channel }}
+  jobs:
+  - template: ./scanJob.yml
+    parameters:
+      channel: ${{ parameters.channel }}
+
+- stage: Push_${{ parameters.channel }}
+  displayName: Push - ${{ parameters.channel }} to ${{ parameters.release }}
+  dependsOn: scan_${{ parameters.channel }}
+  jobs:
+  - template: ./pushJob.yml
+    parameters:
+      channel: ${{ parameters.channel }}
+      release: ${{ parameters.release }}

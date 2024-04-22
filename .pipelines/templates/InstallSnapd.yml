@@ -1,0 +1,11 @@
+steps:
+
+  - bash: |
+        sudo apt update
+    displayName: Apt Update
+    condition: succeeded()
+
+  - bash: |
+        sudo apt-get -y install snapd
+    displayName: Install snapd
+    condition: succeeded()

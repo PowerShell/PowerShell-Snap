@@ -1,0 +1,6 @@
+steps:
+
+  - bash: |
+        mkdir -p -m a=rwx $(ob_outputDirectory)
+    displayName: Create $(ob_outputDirectory)
+    condition: succeeded()
