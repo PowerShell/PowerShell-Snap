@@ -21,9 +21,9 @@ trigger: none
 
 variables:
   - name: CDP_DEFINITION_BUILD_COUNT
-    value: $[counter('', 0)] # needed for onebranch.pipeline.version task https://aka.ms/obpipelines/versioning
+    value: $[counter('', 0)] # needed for onebranch.pipeline.version task 
   - name: LinuxContainerImage
-    value: mcr.microsoft.com/onebranch/cbl-mariner/build:2.0 # Docker image which is used to build the project https://aka.ms/obpipelines/containers
+    value: mcr.microsoft.com/onebranch/cbl-mariner/build:2.0 # Docker image which is used to build the project 
   - name: DEBIAN_FRONTEND
     value: noninteractive
   - group: poolNames
@@ -36,7 +36,7 @@ resources:
       ref: refs/heads/main
 
 extends:
-  template: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
   parameters:
     git:
       fetchDepth: 1
@@ -45,7 +45,7 @@ extends:
       retryCount: 3
       # we don't use this and some of our agents doesn't have the feature installed
       lfs: false
-    cloudvault: # https://aka.ms/obpipelines/cloudvault
+    cloudvault: 
       enabled: false # set to true to enable cloudvault
       runmode: stage # linux can run CloudVault upload as a separate stage
       dependsOn: linux_build
