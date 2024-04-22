@@ -5,18 +5,7 @@ parameters:
     default: 'private'
 
 jobs:
-- template: ./Approval.yml
-  parameters:
-    displayName: 'Approve ${{ parameters.channel }}-${{ parameters.release }} upload'
-    instructions: |
-      Only approve one channel at a time or malware scanning will fail.
-      Approving this will trigger the upload of the snap as "${{ parameters.channel }}-${{ parameters.release }}"
-    jobName: 'push_approval'
-
 - job: push
-  dependsOn:
-    - push_approval
-
   displayName: Push to ${{ parameters.release }}
 
   pool:
