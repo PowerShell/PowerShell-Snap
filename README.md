@@ -38,3 +38,11 @@ sudo snap install powershell-preview --classic
 - Run `whereis pwsh-preview` if, `/snap/bin/pwsh-preview` is not returned, Snap has not created the alias.
 - If Snap has created the alias, and it is not working, you may need to reboot (or logout and back in) before it will work.
 - If Snap has not created the alias, you can create the alias with `sudo snap alias <packagename> <aliasname>`
+
+## Code of Conduct
+
+Please see our [Code of Conduct](.github/CODE_OF_CONDUCT.md) before participating in this project.
+
+## Security Policy
+
+For any security issues, please see our [Security Policy](.github/SECURITY.md).
