@@ -1,5 +1,5 @@
 # Docker image file that describes an Ubuntu16.04 image with PowerShell and SnapCraft installed from Microsoft APT Repo
-FROM mcr.microsoft.com/powershell:ubuntu-22.04@sha256:756dae797891cecc5a732c87695dc984c81b5ef755060c15073191996f71fc92
+FROM mcr.microsoft.com/powershell:ubuntu-24.04@sha256:042240d57ec9e47e511033b92625a8d95875ee5860af3015992c248b58a8be81
 
 ARG SNAPCRAFT_CHANNEL=stable
 
