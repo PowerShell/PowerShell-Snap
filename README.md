@@ -1,3 +1,12 @@
+# PowerShell Snap
+
+## Package Migration
+
+The ownership of the package is being migrated to Canonical.  Please report issues with the package at [canonical/powershell-snap](https://github.com/canonical/powershell-snap).
+For issues with PowerShell itself, please report the issues at [powershell/powershell](https://github.com/powershell/powershell)
+
+## Achrived readme contents
+
 <h1 align="center">
   <img src="https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png" alt="Project">
   <br />
